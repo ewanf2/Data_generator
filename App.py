@@ -8,7 +8,7 @@ from werkzeug.exceptions import BadRequest
 
 fake = Faker()
 
-def function(name):
+
 
 def get_integer(strng):
     global num

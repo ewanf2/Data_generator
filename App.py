@@ -256,5 +256,5 @@ def Document_generator(schema_title):
         docs = pd.DataFrame([docGenerator(schema) for i in range(no_of_docs)]).to_csv()
     msg = (f"{no_of_docs} {filetype} have been generated", 201)
     return docs, 201
-#if __name__="__main__":
-   # App.run(host="0.0.0.0", port=5000, debug=True)
+if __name__="__main__":
+    App.run(host="0.0.0.0", port=5000)

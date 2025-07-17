@@ -165,7 +165,9 @@ list_of_schema = {
     }
 }
 
-
+@App.route("/")
+def index():
+    return "Flask app is running!"
 
 @App.get("/datatypes")
 def view_datatypes():

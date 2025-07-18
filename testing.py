@@ -1,3 +1,4 @@
+#Dev testing folder
 import random
 import re
 from datetime import datetime
@@ -121,4 +122,6 @@ s="First Last"
 
 one_word = s.replace(" ", "").lower()
 print(one_word)
+
+def name():
 

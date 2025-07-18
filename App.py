@@ -6,8 +6,8 @@ import re
 from faker import Faker
 from werkzeug.exceptions import BadRequest
 from waitress import serve
-fake = Faker()
 
+fake = Faker()
 
 
 def get_integer(strng):
@@ -55,7 +55,7 @@ datatype_map = {
     'boolean': fake.boolean,
     'domain': fake.domain_name,
     "random int": random.randint,
-    "country code" : fake.country_code
+    "country code": fake.country_code
 }
 
 
@@ -105,12 +105,30 @@ def get_schema(number_of_keys):
     return schema
 
 
+def user_or_email(name, t="user"):
+    name = name.replace(" ", "").lower()
+    name = name + str(random.randint(1, 10))
+    if t == "user":
+        return name
+    elif t == "email":
+        return name + "@" + random.choice(["outlook.com", "gmail.com", "yahoo.com"])
+
+
 def docGenerator(schema):
     doc = {}
+    n = fake.name()
     for (k, v) in schema.items():
         match v:
             case str():
-                doc[k] = data_gen(v)
+                if v == "name":
+                    doc[k] = n
+                elif v == "email":
+                    doc[k] = user_or_email(n, t="email")
+                elif v == "username":
+                    doc[k] = user_or_email(n, t="user")
+                else:
+                    doc[k] = data_gen(v)
+
             case (val, valinfo):
 
                 if "end_datetime" in valinfo:
@@ -165,22 +183,25 @@ list_of_schema = {
     }
 }
 
+
 @App.route("/")
 def index():
     return "Flask app is running!"
+
 
 @App.get("/datatypes")
 def view_datatypes():
     return "The following datatypes are:\n" + ", ".join(datatype_map.keys())
 
+
 @App.post("/Schemas")
 def define_schema():
     """Expects a json with one key-value pair. The key is the schema title, the value is the schema."""
     errors = []
-    try: #catching JSON syntax errors like malformed json, empty json or json too long
+    try:  # catching JSON syntax errors like malformed json, empty json or json too long
         received_json = request.get_json()
         if not received_json:
-            errors.append( "Empty JSON object provided.")
+            errors.append("Empty JSON object provided.")
         if not isinstance(received_json, dict):
             errors.append("Request is in wrong format. Expected JSON with one key-value pair")
         if len(received_json) != 1:
@@ -188,18 +209,18 @@ def define_schema():
         title = next(iter(received_json.keys()))
         if not title or (isinstance(title, str) and not title.strip()):
             errors.append("Please enter a non-empty string for the schema title")
-        
-    except BadRequest:
-        return "Invalid/malformed JSON. Please check your syntax",400
 
-    schema = next(iter(received_json.values())) #retrieving the schema from the json
-    if not isinstance(schema, dict):  #Checking that it is a dictionary
-        errors.append( 'Invalid schema format: expected a JSON object as the schema value.')
+    except BadRequest:
+        return "Invalid/malformed JSON. Please check your syntax", 400
+
+    schema = next(iter(received_json.values()))  # retrieving the schema from the json
+    if not isinstance(schema, dict):  # Checking that it is a dictionary
+        errors.append('Invalid schema format: expected a JSON object as the schema value.')
 
     unsupported = []
     for (k, v) in schema.items():
-        if not k or (isinstance(k, str) and not k.strip()): #checking to see if any keys are blank/empty
-            errors.append( 'Empty key detected in schema. Do not leave key blank')
+        if not k or (isinstance(k, str) and not k.strip()):  # checking to see if any keys are blank/empty
+            errors.append('Empty key detected in schema. Do not leave key blank')
         match v:  # looping through the schema to check if all datatypes are in the datatype map
             case str():
                 if v.lower().strip() not in datatype_map:
@@ -207,19 +228,20 @@ def define_schema():
             case (val, valinfo):  # datatype, optional parameters to go with datatype gen function
                 if val.lower().strip() not in datatype_map:
                     unsupported.append(val)
-    if len(unsupported) > 0: #Returning error message if there are any unsupported datatypes
-        errors.append( f"The following datatypes are unsupported:  {', '.join(unsupported)}")
+    if len(unsupported) > 0:  # Returning error message if there are any unsupported datatypes
+        errors.append(f"The following datatypes are unsupported:  {', '.join(unsupported)}")
     if errors:
         return "Error reading schema:\n" + "\n".join(errors), 400
-    else: #If all datatypes in schema are supported, update list of schema with this schema and return success msg
+    else:  # If all datatypes in schema are supported, update list of schema with this schema and return success msg
         key = list(received_json.keys())[0]
         list_of_schema.update(received_json)
         return f"The following schema has been defined : {key}", 201
 
+
 @App.delete("/Schemas/<schema_title>")
 def delete_schema(schema_title):
     if schema_title not in list_of_schema:
-        return "Schema not in existing list of schemas, unable to delete.",400
+        return "Schema not in existing list of schemas, unable to delete.", 400
     else:
         del list_of_schema[schema_title]
         return f"Schema: {schema_title}  deleted.", 200
@@ -236,7 +258,6 @@ def view(schema_title=None):
 
 @App.get("/Schemas/<schema_title>/data")
 def Document_generator(schema_title):
-
     no_of_docs = request.args.get("no", 1)
     filetype = request.args.get("file", "json")
     if schema_title not in list_of_schema.keys():
@@ -258,6 +279,7 @@ def Document_generator(schema_title):
         docs = pd.DataFrame([docGenerator(schema) for i in range(no_of_docs)]).to_csv()
     msg = (f"{no_of_docs} {filetype} have been generated", 201)
     return docs, 201
-if __name__=="__main__":
-    serve(App,host="0.0.0.0", port=80)
 
+
+if __name__ == "__main__":
+    serve(App, host="0.0.0.0", port=80)

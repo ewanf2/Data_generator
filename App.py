@@ -40,6 +40,33 @@ def getDate(inp):
             return (
                 "Invalid input, please enter in the form YYYY-MM-DD or relative date input like +30y or -5d to signify +30 years or -5 days")
 
+def HTTP_status():
+    status_codes = [
+    "500 Internal Server Error: Unexpected condition encountered.",
+    "501 Not Implemented: Server does not support the functionality.",
+    "502 Bad Gateway: Invalid response from upstream server.",
+    "503 Service Unavailable: Server is temporarily overloaded or under maintenance.",
+    "504 Gateway Timeout: Upstream server failed to send a request in time.",
+    "505 HTTP Version Not Supported: Server does not support HTTP version used in request.",
+    "507 Insufficient Storage: Server is unable to store the representation needed.",
+    "508 Loop Detected: Server detected an infinite loop in processing.",
+    "510 Not Extended: Further extensions are required for the request.",
+    "511 Network Authentication Required: Client must authenticate to gain network access.",
+    "400 Bad Request: The server could not understand the request.",
+    "401 Unauthorized: Authentication is required and has failed.",
+    "403 Forbidden: The server understood the request but refuses to authorize it.",
+    "404 Not Found: The requested resource could not be found.",
+    "405 Method Not Allowed: The method is not supported for the requested resource.",
+    "406 Not Acceptable: Requested resource is only capable of generating unacceptable content.",
+    "408 Request Timeout: The server timed out waiting for the request.",
+    "409 Conflict: The request could not be completed due to a conflict.",
+    "410 Gone: The resource requested is no longer available and will not be available again.",
+    "413 Payload Too Large: The request entity is larger than the server is willing to process.",
+    "414 URI Too Long: The URI provided was too long for the server to process.",
+    "415 Unsupported Media Type: The server does not support the media type transmitted.",
+    "429 Too Many Requests: The user has sent too many requests in a given amount of time."
+    ]
+    return random.choice(status_codes)
 
 datatype_map = {
     'name': fake.name,
@@ -55,7 +82,13 @@ datatype_map = {
     'boolean': fake.boolean,
     'domain': fake.domain_name,
     "random int": random.randint,
-    "country code": fake.country_code
+    "country code": fake.country_code,
+    "timestamp": fake.iso8601(),
+    "HTTP status": HTTP_status,
+    "user agent": fake.user_agent,
+    "HTTP method": fake.http_method,
+    "hostname": fake.hostname
+
 }
 
 
@@ -164,10 +197,7 @@ def generate_documents_terminal():
 
 
 # print(generate_documents_terminal())
-ex = {'namer': 'name', 'dob': ('date', {'end_datetime': '+30d'})}
-ex2 = {'name': 'name', "DOB": "date"}
-ex3 = {"randint": ("random int", {"a": 1, "b": 10})
-       }
+
 
 App = Flask(__name__)
 
@@ -180,7 +210,12 @@ list_of_schema = {
         "DOB": "date",
         "Name": "name",
         "Email": "email",
-    }
+    },
+    "Logs2": {
+        "user agent":"user agent",
+        "HTTP request":"http request",
+        "HTTP response":"HTTP method",
+        }
 }
 
 
@@ -259,7 +294,9 @@ def view(schema_title=None):
 @App.get("/Schemas/<schema_title>/data")
 def Document_generator(schema_title):
     no_of_docs = request.args.get("no", 1)
-    filetype = request.args.get("file", "json")
+    filetype = request.headers.get('Accept', 'application/json')
+    print(filetype)
+    #filetype = "application/json"
     if schema_title not in list_of_schema.keys():
         return (
             f"This schema {schema_title} has not been defined. Either define this schema or try again with an existing one",
@@ -273,13 +310,13 @@ def Document_generator(schema_title):
         return "You have to enter a valid number of documents, it should be a positive integer", 400
 
     schema = list_of_schema[schema_title]
-    if filetype == "json":
+    if filetype == "application/ndjson":
         docs = [json.dumps(docGenerator(schema) )for i in range(no_of_docs)]
         docs = "\n".join(docs)
-    elif filetype == "ndjson":
+    elif filetype == "application/json" or filetype == "*/*":
         docs = [docGenerator(schema) for i in range(no_of_docs)]
-        return
-    elif filetype == "csv":
+
+    elif filetype == "text/csv":
         docs = pd.DataFrame([docGenerator(schema) for i in range(no_of_docs)]).to_csv()
     msg = (f"{no_of_docs} {filetype} have been generated", 201)
     return docs, 201

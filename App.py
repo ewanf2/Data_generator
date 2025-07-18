@@ -191,7 +191,7 @@ def index():
 
 @App.get("/datatypes")
 def view_datatypes():
-    return "The following datatypes are:\n" + ", ".join(datatype_map.keys())
+    return "The supported datatypes are:\n" + ", ".join(datatype_map.keys())
 
 
 @App.post("/Schemas")

@@ -6,7 +6,7 @@ import re
 from faker import Faker
 from werkzeug.exceptions import BadRequest
 from waitress import serve
-
+import json
 fake = Faker()
 
 
@@ -274,7 +274,11 @@ def Document_generator(schema_title):
 
     schema = list_of_schema[schema_title]
     if filetype == "json":
+        docs = [json.dumps(docGenerator(schema) )for i in range(no_of_docs)]
+        docs = "\n".join(docs)
+    elif filetype == "ndjson":
         docs = [docGenerator(schema) for i in range(no_of_docs)]
+        return
     elif filetype == "csv":
         docs = pd.DataFrame([docGenerator(schema) for i in range(no_of_docs)]).to_csv()
     msg = (f"{no_of_docs} {filetype} have been generated", 201)

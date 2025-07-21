@@ -295,8 +295,7 @@ def view(schema_title=None):
 def Document_generator(schema_title):
     no_of_docs = request.args.get("no", 1)
     filetype = request.headers.get('Accept', 'application/json')
-    print(filetype)
-    #filetype = "application/json"
+
     if schema_title not in list_of_schema.keys():
         return (
             f"This schema {schema_title} has not been defined. Either define this schema or try again with an existing one",

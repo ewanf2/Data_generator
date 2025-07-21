@@ -87,7 +87,8 @@ datatype_map = {
     "HTTP status": HTTP_status,
     "user agent": fake.user_agent,
     "HTTP method": fake.http_method,
-    "hostname": fake.hostname
+    "hostname": fake.hostname,
+    "HTTP code": fake.http_status_code
 
 }
 
@@ -100,7 +101,7 @@ def data_gen(datatype, info=None):
         return func()
 
 
-def get_schema(number_of_keys):
+def get_schema(number_of_keys): #CLI function
     schema = {}
     info = None
     for i in range(number_of_keys):
@@ -322,4 +323,4 @@ def Document_generator(schema_title):
 
 
 if __name__ == "__main__":
-    serve(App, host="0.0.0.0", port=80)
+    main()

@@ -1,0 +1,27 @@
+from App import data_gen, docGenerator
+import re
+from playwright.sync_api import Playwright, APIRequest, APIRequestContext
+from typing import Generator
+import pytest
+
+@pytest.fixture(scope="session")
+def api_request_context( playwright: Playwright ) -> Generator[APIRequestContext, None, None]:
+    request_context = playwright.request.new_context(base_url="http://localhost:5000")
+    yield request_context
+    request_context.dispose()
+
+def test_uploadSchema(api_request_context: APIRequestContext):
+    Schema = {"Example":{
+        "DOB": "date",
+        "Name": "name",
+        "Email": "email"}
+    }
+    new_schema = api_request_context.post("/Schemas",data=Schema)
+    #response_msg = new_schema.json()
+    assert new_schema.status == 201
+
+
+def gen_documentsLogs2(api_request_context: APIRequestContext):
+    get_data = api_request_context.get("/Schemas/Logs2/data")
+    assert get_data is not None
+    assert get_data.status == 201

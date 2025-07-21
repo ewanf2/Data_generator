@@ -152,7 +152,7 @@ def docGenerator(schema):
     doc = {}
     n = fake.name()
     for (field_name, v) in schema.items():
-
+        v = v.copy()
         datatype, params = v.pop("type"), v
         if "start_date" in params:
             params["start_date"] = getDate(params["start_date"])
@@ -201,18 +201,18 @@ App = Flask(__name__)
 
 list_of_schema = {
     "Logs": {
-        "Destination IP": "ipv4",
-        "Source IP": "ipv4"
+        "Destination IP": {"type":"ipv4"},
+        "Source IP": {"type":"ipv4"}
     },
     "Person": {
-        "DOB": "date",
-        "Name": "name",
-        "Email": "email",
+        "DOB": {"type":"date"},
+        "Name": {"type":"name"},
+        "Email": {"type":"email"},
     },
     "Logs2": {
-        "user agent":"user agent",
-        "HTTP request":"http request",
-        "HTTP response":"HTTP method",
+        "user agent": {"type":"user agent"},
+        "HTTP request": {"type":"http request"},
+        "HTTP response":{"type":"HTTP method"}
         }
 }
 

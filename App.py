@@ -70,7 +70,7 @@ def HTTP_status():
 
 datatype_map = {
     'name': fake.name,
-    'date': fake.date,
+    'date':  lambda **kwargs: str(fake.date_between(**kwargs)),
     "uuid": fake.uuid4,
     'email': fake.email,
     'ipv4': fake.ipv4,
@@ -151,27 +151,24 @@ def user_or_email(name, t="user"):
 def docGenerator(schema):
     doc = {}
     n = fake.name()
-    for (k, v) in schema.items():
-        match v:
-            case str():
-                if v == "name":
-                    doc[k] = n
-                elif v == "email":
-                    doc[k] = user_or_email(n, t="email")
-                elif v == "username":
-                    doc[k] = user_or_email(n, t="user")
-                else:
-                    doc[k] = data_gen(v)
+    for (field_name, v) in schema.items():
 
-            case (val, valinfo):
+        datatype, params = v.pop("type"), v
+        if "start_date" in params:
+            params["start_date"] = getDate(params["start_date"])
+        if "end_date" in params:
+            params["end_date"] = getDate(params["end_date"])
 
-                if "end_datetime" in valinfo:
-                    valinfo["end_datetime"] = getDate(valinfo["end_datetime"])
-                    doc[k] = data_gen(val, valinfo)
+        doc[field_name] = data_gen(datatype, params)
 
-                else:
-                    doc[k] = data_gen(val, info=valinfo)
+        if datatype == "name":
+            doc[field_name] = n
+        elif datatype == "email":
+            doc[field_name] = user_or_email(n, t="email")
+        elif datatype == "username":
+            doc[field_name] = user_or_email(n, t="username")
     return doc
+
 
 
 def docGenerator_simple(schema):
@@ -322,5 +319,6 @@ def Document_generator(schema_title):
     return docs, 201
 
 
-if __name__ == "__main__":
+"""if __name__ == "__main__":
     main()
+"""

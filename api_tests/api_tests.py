@@ -11,15 +11,16 @@ import pytest
 from App import data_gen, docGenerator
 @pytest.fixture(scope="session")
 def api_request_context( playwright: Playwright ) -> Generator[APIRequestContext, None, None]:
-    request_context = playwright.request.new_context(base_url="http://localhost:5000")
+    request_context = playwright.request.new_context(base_url="http://localhost:5100")
     yield request_context
     request_context.dispose()
 
 def test_uploadSchema(api_request_context: APIRequestContext):
     Schema = {"Example":{
-        "DOB": "date",
-        "Name": "name",
-        "Email": "email"}
+        "DOB": {"type":"date"},
+        "Name": {"type":"name"},
+        "Email": {"type":"email"}
+    }
     }
     new_schema = api_request_context.post("/Schemas",data=Schema)
     #response_msg = new_schema.json()

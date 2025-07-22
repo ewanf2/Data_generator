@@ -6,7 +6,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from App import data_gen, docGenerator, docGenerator_simple
 import re
-from playwright.sync_api import Playwright, APIRequest
+
 #Testing data_gen function ability to generate a random instance of data
 def test_data_gen_name():
     obtained = data_gen("name")

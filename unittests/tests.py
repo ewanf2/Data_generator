@@ -36,11 +36,11 @@ def test_data_gen_uuid():
 
 def test_docGenerator_PersonSchema():#Checking that the random generated data is the correct format
     Schema = {
-        "DOB": "date",
-        "Name": "name",
-        "Email": "email",
+        "DOB": {"type": "date","start_date":"1998-02-02","end_date":"+30y"},
+        "Name": {"type":"name"},
+        "Email": {"type": "email"},
     }
-    doc = docGenerator_simple(Schema)
+    doc = docGenerator(Schema)
     date_pattern = r'\d{4}-\d{2}-\d{2}'
     email_pattern = r'^[\w\.\-]+@[\w\-]+\.\w{2,}$'
 
@@ -60,11 +60,11 @@ def test_docGenerator_PersonSchema():#Checking that the random generated data is
 
 def test_docGenerator_LogsSchema():
     Schema = {
-        "Source IP": "ipv4",
-        "Destination IP": "ipv4",
-        "HTTP Status code": "HTTP code"
+        "Source IP": {"type":"ipv4"},
+        "Destination IP": {"type":"ipv4"},
+        "HTTP Status code": {"type": "HTTP code"}
     }
-    doc = docGenerator_simple(Schema)
+    doc = docGenerator(Schema)
     assert type(doc) == dict
     assert len(doc) == len(Schema)
     ipv4_pattern = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
@@ -75,11 +75,11 @@ def test_docGenerator_LogsSchema():
 
 def test_docGenerator_ContactSchema():
     Schema = {
-        "Name": "name",
-        "Contact no": "phone number",
-        "Country code": "country code"
+        "Name": {"type":"name"},
+        "Contact no": {"type":"phone number"},
+        "Country code": {"type":"country code"}
     }
-    doc = docGenerator_simple(Schema)
+    doc = docGenerator(Schema)
     assert type(doc) == dict
     assert len(doc) == len(Schema)
     assert type(doc["Name"]) == str

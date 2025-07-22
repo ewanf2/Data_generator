@@ -18,10 +18,12 @@ def test_uploadSchema(api_request_context: APIRequestContext):
     }
     new_schema = api_request_context.post("/Schemas",data=Schema)
     #response_msg = new_schema.json()
+    check = api_request_context.get("/Schemas/Example")
     assert new_schema.status == 201
+    #assert check.status == 200
 
 
 def gen_documentsLogs2(api_request_context: APIRequestContext):
     get_data = api_request_context.get("/Schemas/Logs2/data")
-    assert get_data is not None
+
     assert get_data.status == 201

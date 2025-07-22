@@ -1,5 +1,5 @@
 #Unit tests and dat
-from App import data_gen, docGenerator
+from App import data_gen, docGenerator, docGenerator_simple
 import re
 from playwright.sync_api import Playwright, APIRequest
 #Testing data_gen function ability to generate a random instance of data
@@ -35,9 +35,14 @@ def test_docGenerator_PersonSchema():#Checking that the random generated data is
         "Name": "name",
         "Email": "email",
     }
-    doc = docGenerator(Schema)
+    doc = docGenerator_simple(Schema)
     date_pattern = r'\d{4}-\d{2}-\d{2}'
     email_pattern = r'^[\w\.\-]+@[\w\-]+\.\w{2,}$'
+
+    assert "DOB" in doc
+    assert "Name" in doc
+    assert "Email" in doc
+
     assert type(doc) == dict
     assert len(doc) == len(Schema)
     assert type(doc["DOB"]) == str
@@ -54,7 +59,7 @@ def test_docGenerator_LogsSchema():
         "Destination IP": "ipv4",
         "HTTP Status code": "HTTP code"
     }
-    doc = docGenerator(Schema)
+    doc = docGenerator_simple(Schema)
     assert type(doc) == dict
     assert len(doc) == len(Schema)
     ipv4_pattern = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
@@ -69,7 +74,7 @@ def test_docGenerator_ContactSchema():
         "Contact no": "phone number",
         "Country code": "country code"
     }
-    doc = docGenerator(Schema)
+    doc = docGenerator_simple(Schema)
     assert type(doc) == dict
     assert len(doc) == len(Schema)
     assert type(doc["Name"]) == str

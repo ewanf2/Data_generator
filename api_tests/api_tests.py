@@ -29,7 +29,23 @@ def test_uploadSchema(api_request_context: APIRequestContext):
 
 
 def test_gen_documentsLogs2(api_request_context: APIRequestContext):
-    get_data = api_request_context.get("/Schemas/Person/data?no=10")
+    get_data = api_request_context.get("/Schemas/Person/data")
     data= get_data.json()
-    print(data)
     assert get_data.status == 201
+    PersonSchema = api_request_context.get("/Schemas/Person")
+    assert PersonSchema.status == 200
+    data = data[0]
+
+    for k,v in PersonSchema.json().items():
+        assert k in data
+
+def test_gen_documentsLogs2(api_request_context: APIRequestContext):
+    get_data = api_request_context.get("/Schemas/Person/data")
+    data= get_data.json()
+    assert get_data.status == 201
+    PersonSchema = api_request_context.get("/Schemas/Person")
+    assert PersonSchema.status == 200
+    data = data[0]
+
+    for k,v in PersonSchema.json().items():
+        assert k in data

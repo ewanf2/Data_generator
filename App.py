@@ -321,7 +321,5 @@ def Document_generator(schema_title):
     msg = (f"{no_of_docs} {filetype} have been generated", 201)
     return docs, 201
 
-
-"""if __name__ == "__main__":
-    main()
-"""
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000)

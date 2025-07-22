@@ -11,7 +11,9 @@ from playwright.sync_api import Playwright, APIRequest
 def test_data_gen_name():
     obtained = data_gen("name")
     pattern = r'\w+\s\w+'
+
     assert type(obtained) == str
+    assert re.match(pattern, obtained)
 
 def test_data_gen_email():
     result = data_gen("email")
@@ -64,7 +66,10 @@ def test_docGenerator_LogsSchema():
         "Destination IP": {"type":"ipv4"},
         "HTTP Status code": {"type": "HTTP code"}
     }
+
     doc = docGenerator(Schema)
+    for (k,v) in Schema.items():
+        assert k in doc
     assert type(doc) == dict
     assert len(doc) == len(Schema)
     ipv4_pattern = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
@@ -85,9 +90,10 @@ def test_docGenerator_ContactSchema():
     assert type(doc["Name"]) == str
     assert type(doc["Country code"]) == str
     assert type(doc["Contact no"]) == str
-
+    for (k,v) in Schema.items():
+        assert k in doc
     phone_pattern = r'^(\+1\s?)?(\(?\d{3}\)?[\s.-]?)?\d{3}[\s.-]?\d{4}$'
-    cc_pattern = r'^[A-Z]{2}'
-    #assert re.match(phone_pattern, doc["Contact no"])
-    #assert re.match(cc_pattern, doc["Contact no"])
+    cc_pattern = r'^[a-z]{2}'
+
+    #assert re.match(cc_pattern, doc["Country code"])
     #assert re.match(r'\w+\s\w+',doc["Name"])

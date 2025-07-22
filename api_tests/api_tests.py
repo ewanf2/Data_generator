@@ -1,4 +1,4 @@
-from App import data_gen, docGenerator
+
 import re
 import sys
 import os
@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from playwright.sync_api import Playwright, APIRequest, APIRequestContext
 from typing import Generator
 import pytest
-
+from App import data_gen, docGenerator
 @pytest.fixture(scope="session")
 def api_request_context( playwright: Playwright ) -> Generator[APIRequestContext, None, None]:
     request_context = playwright.request.new_context(base_url="http://localhost:5000")
@@ -25,10 +25,11 @@ def test_uploadSchema(api_request_context: APIRequestContext):
     #response_msg = new_schema.json()
     check = api_request_context.get("/Schemas/Example")
     assert new_schema.status == 201
-    #assert check.status == 200
+    assert check.status == 200
 
 
-def gen_documentsLogs2(api_request_context: APIRequestContext):
-    get_data = api_request_context.get("/Schemas/Logs2/data")
-
+def test_gen_documentsLogs2(api_request_context: APIRequestContext):
+    get_data = api_request_context.get("/Schemas/Person/data?no=10")
+    data= get_data.json()
+    print(data)
     assert get_data.status == 201

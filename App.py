@@ -95,10 +95,11 @@ datatype_map = {
 
 def data_gen(datatype, info=None):
     func = datatype_map.get(datatype)
-    if info is not None:
-        return func(**info)
-    else:
+    if info == {} or info is None:
         return func()
+    else:
+        return func(**info)
+
 
 
 def get_schema(number_of_keys): #CLI function
@@ -158,9 +159,11 @@ def docGenerator(schema):
             params["start_date"] = getDate(params["start_date"])
         if "end_date" in params:
             params["end_date"] = getDate(params["end_date"])
-
-        doc[field_name] = data_gen(datatype, params)
-
+        if len(params) == 0:
+            doc[field_name] = data_gen(datatype)
+        if len(params) != 0:
+            doc[field_name] = data_gen(datatype, params)
+        ##
         if datatype == "name":
             doc[field_name] = n
         elif datatype == "email":
@@ -211,8 +214,8 @@ list_of_schema = {
     },
     "Logs2": {
         "user agent": {"type":"user agent"},
-        "HTTP request": {"type":"http request"},
-        "HTTP response":{"type":"HTTP method"}
+        "HTTP status": {"type":"HTTP status"},
+        "HTTP method":{"type":"HTTP method"}
         }
 }
 

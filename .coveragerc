@@ -1,0 +1,6 @@
+[run]
+source = dfunctions
+
+[report]
+include =
+    dfunctions/*.py

@@ -98,3 +98,7 @@ def test_docGenerator_ContactSchema():
 
     #assert re.match(cc_pattern, doc["Country code"])
     #assert re.match(r'\w+\s\w+',doc["Name"])
+
+def test_http_status:
+    result = http_status()
+    assert type(result) == str

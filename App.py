@@ -9,7 +9,7 @@ from waitress import serve
 import json
 fake = Faker()
 
-
+#test
 def get_integer(strng):
     global num
     while True:

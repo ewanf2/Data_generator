@@ -7,6 +7,7 @@ from faker import Faker
 from werkzeug.exceptions import BadRequest
 from waitress import serve
 import json
+import secrets
 fake = Faker()
 
 def get_date(inp):
@@ -83,11 +84,11 @@ def data_gen(datatype, info=None):
         return func(**info)
 def user_or_email(name, t="user"):
     name = name.replace(" ", "").lower()
-    name = name + str(random.randint(1, 10))
+    name = name + str(secrets.randbelow(10) + 1)
     if t == "user":
         return name
     elif t == "email":
-        return name + "@" + random.choice(["outlook.com", "gmail.com", "yahoo.com"])
+        return name + "@" + secrets.choice(["outlook.com", "gmail.com", "yahoo.com"])
 
 def doc_generator(schema):
     doc = {}

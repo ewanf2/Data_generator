@@ -9,7 +9,7 @@ from waitress import serve
 import json
 fake = Faker()
 
-def getDate(inp):
+def get_date(inp):
     ptrn = r'^[+-]\d+[dwmy]$'
 
     try:
@@ -23,7 +23,7 @@ def getDate(inp):
             return (
                 "Invalid input, please enter in the form YYYY-MM-DD or relative date input like +30y or -5d to signify +30 years or -5 days")
 
-def HTTP_status():
+def http_status():
     status_codes = [
     "500 Internal Server Error: Unexpected condition encountered.",
     "501 Not Implemented: Server does not support the functionality.",
@@ -67,7 +67,7 @@ datatype_map = {
     "random int": random.randint,
     "country code": fake.country_code,
     "timestamp": fake.iso8601(),
-    "HTTP status": HTTP_status,
+    "HTTP status": http_status,
     "user agent": fake.user_agent,
     "HTTP method": fake.http_method,
     "hostname": fake.hostname,
@@ -89,16 +89,16 @@ def user_or_email(name, t="user"):
     elif t == "email":
         return name + "@" + random.choice(["outlook.com", "gmail.com", "yahoo.com"])
 
-def docGenerator(schema):
+def doc_generator(schema):
     doc = {}
     n = fake.name()
     for (field_name, v) in schema.items():
         v = v.copy()
         datatype, params = v.pop("type"), v
         if "start_date" in params:
-            params["start_date"] = getDate(params["start_date"])
+            params["start_date"] = get_date(params["start_date"])
         if "end_date" in params:
-            params["end_date"] = getDate(params["end_date"])
+            params["end_date"] = get_date(params["end_date"])
         if len(params) == 0:
             doc[field_name] = data_gen(datatype)
         if len(params) != 0:

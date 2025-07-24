@@ -8,7 +8,7 @@ from werkzeug.exceptions import BadRequest
 from waitress import serve
 import json
 fake = Faker()
-from dfunctions import data_gen, docGenerator, user_or_email, HTTP_status, getDate
+from dfunctions import data_gen, doc_generator, user_or_email, http_status, get_date, datatype_map
 #test
 def get_integer(strng):
     global num
@@ -24,73 +24,6 @@ def get_integer(strng):
             print("Please enter an integer")
             continue
     return num
-
-
-def getDate(inp):
-    ptrn = r'^[+-]\d+[dwmy]$'
-
-    try:
-
-        out = datetime.strptime(inp, "%Y-%m-%d").date()
-        return out
-    except ValueError:
-        if re.match(ptrn, inp):
-            return inp
-        else:
-            return (
-                "Invalid input, please enter in the form YYYY-MM-DD or relative date input like +30y or -5d to signify +30 years or -5 days")
-
-def HTTP_status():
-    status_codes = [
-    "500 Internal Server Error: Unexpected condition encountered.",
-    "501 Not Implemented: Server does not support the functionality.",
-    "502 Bad Gateway: Invalid response from upstream server.",
-    "503 Service Unavailable: Server is temporarily overloaded or under maintenance.",
-    "504 Gateway Timeout: Upstream server failed to send a request in time.",
-    "505 HTTP Version Not Supported: Server does not support HTTP version used in request.",
-    "507 Insufficient Storage: Server is unable to store the representation needed.",
-    "508 Loop Detected: Server detected an infinite loop in processing.",
-    "510 Not Extended: Further extensions are required for the request.",
-    "511 Network Authentication Required: Client must authenticate to gain network access.",
-    "400 Bad Request: The server could not understand the request.",
-    "401 Unauthorized: Authentication is required and has failed.",
-    "403 Forbidden: The server understood the request but refuses to authorize it.",
-    "404 Not Found: The requested resource could not be found.",
-    "405 Method Not Allowed: The method is not supported for the requested resource.",
-    "406 Not Acceptable: Requested resource is only capable of generating unacceptable content.",
-    "408 Request Timeout: The server timed out waiting for the request.",
-    "409 Conflict: The request could not be completed due to a conflict.",
-    "410 Gone: The resource requested is no longer available and will not be available again.",
-    "413 Payload Too Large: The request entity is larger than the server is willing to process.",
-    "414 URI Too Long: The URI provided was too long for the server to process.",
-    "415 Unsupported Media Type: The server does not support the media type transmitted.",
-    "429 Too Many Requests: The user has sent too many requests in a given amount of time."
-    ]
-    return random.choice(status_codes)
-
-datatype_map = {
-    'name': fake.name,
-    'date':  lambda **kwargs: str(fake.date_between(**kwargs)),
-    "uuid": fake.uuid4,
-    'email': fake.email,
-    'ipv4': fake.ipv4,
-    'ipv6': fake.ipv6,
-    'phone number': fake.phone_number,
-    'address': fake.address,
-    'username': fake.user_name,
-    'password': fake.password,
-    'boolean': fake.boolean,
-    'domain': fake.domain_name,
-    "random int": random.randint,
-    "country code": fake.country_code,
-    "timestamp": fake.iso8601(),
-    "HTTP status": HTTP_status,
-    "user agent": fake.user_agent,
-    "HTTP method": fake.http_method,
-    "hostname": fake.hostname,
-    "HTTP code": fake.http_status_code
-
-}
 
 
 
@@ -160,7 +93,7 @@ def generate_documents_terminal():
     schema = get_schema(number_of_keys)
     docs = []
     for i in range(number_of_docs):
-        docs.append(docGenerator(schema))
+        docs.append(doc_generator(schema))
     return docs
 
 
@@ -178,12 +111,8 @@ list_of_schema = {
         "DOB": {"type":"date"},
         "Name": {"type":"name"},
         "Email": {"type":"email"},
-    },
-    "Logs2": {
-        "user agent": {"type":"user agent"},
-        "HTTP status": {"type":"HTTP status"},
-        "HTTP method":{"type":"HTTP method"}
-        }
+    }
+
 }
 
 
@@ -278,13 +207,13 @@ def Document_generator(schema_title):
 
     schema = list_of_schema[schema_title]
     if filetype == "application/ndjson":
-        docs = [json.dumps(docGenerator(schema) )for i in range(no_of_docs)]
+        docs = [json.dumps(doc_generator(schema) )for i in range(no_of_docs)]
         docs = "\n".join(docs)
     elif filetype == "application/json" or filetype == "*/*":
-        docs = [docGenerator(schema) for i in range(no_of_docs)]
+        docs = [doc_generator(schema) for i in range(no_of_docs)]
 
     elif filetype == "text/csv":
-        docs = pd.DataFrame([docGenerator(schema) for i in range(no_of_docs)]).to_csv()
+        docs = pd.DataFrame([doc_generator(schema) for i in range(no_of_docs)]).to_csv()
     msg = (f"{no_of_docs} {filetype} have been generated", 201)
     return docs, 201
 

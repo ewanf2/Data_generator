@@ -8,7 +8,7 @@ from werkzeug.exceptions import BadRequest
 from waitress import serve
 import json
 fake = Faker()
-
+from dfunctions import data_gen, docGenerator, user_or_email, HTTP_status, getDate
 #test
 def get_integer(strng):
     global num
@@ -93,12 +93,7 @@ datatype_map = {
 }
 
 
-def data_gen(datatype, info=None):
-    func = datatype_map.get(datatype)
-    if info == {} or info is None:
-        return func()
-    else:
-        return func(**info)
+
 
 
 
@@ -140,37 +135,9 @@ def get_schema(number_of_keys): #CLI function
     return schema
 
 
-def user_or_email(name, t="user"):
-    name = name.replace(" ", "").lower()
-    name = name + str(random.randint(1, 10))
-    if t == "user":
-        return name
-    elif t == "email":
-        return name + "@" + random.choice(["outlook.com", "gmail.com", "yahoo.com"])
 
 
-def docGenerator(schema):
-    doc = {}
-    n = fake.name()
-    for (field_name, v) in schema.items():
-        v = v.copy()
-        datatype, params = v.pop("type"), v
-        if "start_date" in params:
-            params["start_date"] = getDate(params["start_date"])
-        if "end_date" in params:
-            params["end_date"] = getDate(params["end_date"])
-        if len(params) == 0:
-            doc[field_name] = data_gen(datatype)
-        if len(params) != 0:
-            doc[field_name] = data_gen(datatype, params)
-        ##
-        if datatype == "name":
-            doc[field_name] = n
-        elif datatype == "email":
-            doc[field_name] = user_or_email(n, t="email")
-        elif datatype == "username":
-            doc[field_name] = user_or_email(n, t="username")
-    return doc
+
 
 
 

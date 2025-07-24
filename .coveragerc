@@ -4,3 +4,7 @@ source =.
 [report]
 include =
     dfunctions.py
+omit = 
+    unittests/*
+    api_tests/*
+    App.py

@@ -50,7 +50,7 @@ def http_status():
     "415 Unsupported Media Type: The server does not support the media type transmitted.",
     "429 Too Many Requests: The user has sent too many requests in a given amount of time."
     ]
-    return random.choice(status_codes)
+    return secrets.choice(status_codes)
 
 datatype_map = {
     'name': fake.name,

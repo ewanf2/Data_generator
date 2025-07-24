@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from playwright.sync_api import Playwright, APIRequest, APIRequestContext
 from typing import Generator
 import pytest
-from App import data_gen, docGenerator
+from App import data_gen, doc_generator
 @pytest.fixture(scope="session")
 def api_request_context( playwright: Playwright ) -> Generator[APIRequestContext, None, None]:
     request_context = playwright.request.new_context(base_url="http://localhost:5100")

@@ -1,5 +1,12 @@
-testing.py
+# Ignore Python cache files
 __pycache__/
-*.pyc
-__pycache__/App.cpython-313.pyc
-.venv
+*.py[cod]
+
+# Ignore virtual environments
+.venv/
+venv/
+env/
+
+# Ignore IDE configs
+.idea/
+testing.py

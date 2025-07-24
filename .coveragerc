@@ -1,6 +1,6 @@
 [run]
-source = dfunctions
+source =.
 
 [report]
 include =
-    dfunctions/*.py
+    dfunctions.py

@@ -30,7 +30,7 @@ def get_integer(strng):
 
 
 
-def get_schema(number_of_keys): #CLI function
+"""def get_schema(number_of_keys): #CLI function
     schema = {}
     info = None
     for i in range(number_of_keys):
@@ -50,7 +50,7 @@ def get_schema(number_of_keys): #CLI function
                 "Enter the data type: ")
             datatype = str(datatype.strip()).lower()
             if datatype in datatype_map:
-                """if datatype == "random int":
+                if datatype == "random int":
                     print("Lower bound:")
                     a = get_integer(":")
                     print("Upper bound:")
@@ -60,13 +60,13 @@ def get_schema(number_of_keys): #CLI function
                     print("End date (should be in format YYYY-MM-DD): ")
                     date = str(input())
                     schema[key_name] = (datatype, {"end_datetime": date})
-                else:"""
+                else:
                 schema[key_name] = datatype
                 break
             else:
                 print("That is an unsupported data type")
     return schema
-
+"""
 
 
 
@@ -83,7 +83,7 @@ def docGenerator_simple(schema):
     return doc
 
 
-def generate_documents_terminal():
+"""def generate_documents_terminal():
     print("This application generates json documents based on user input. Supported data types are: ")
     [print(f'-{key}') for key in datatype_map.keys()]
     print("Please enter the number of desired data fields:")
@@ -95,6 +95,7 @@ def generate_documents_terminal():
     for i in range(number_of_docs):
         docs.append(doc_generator(schema))
     return docs
+    """
 
 
 # print(generate_documents_terminal())

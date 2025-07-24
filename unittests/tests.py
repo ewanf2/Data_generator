@@ -4,7 +4,7 @@ import os
 
 # Add the project root to the import path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from App import data_gen, docGenerator, docGenerator_simple
+from dfunctions import data_gen, doc_generator, user_or_email, http_status, get_date, datatype_map
 import re
 
 #Testing data_gen function ability to generate a random instance of data
@@ -42,7 +42,7 @@ def test_docGenerator_PersonSchema():#Checking that the random generated data is
         "Name": {"type":"name"},
         "Email": {"type": "email"},
     }
-    doc = docGenerator(Schema)
+    doc = doc_generator(Schema)
     date_pattern = r'\d{4}-\d{2}-\d{2}'
     email_pattern = r'^[\w\.\-]+@[\w\-]+\.\w{2,}$'
 
@@ -67,7 +67,7 @@ def test_docGenerator_LogsSchema():
         "HTTP Status code": {"type": "HTTP code"}
     }
 
-    doc = docGenerator(Schema)
+    doc = doc_generator(Schema)
     for (k,v) in Schema.items():
         assert k in doc
     assert type(doc) == dict
@@ -84,7 +84,7 @@ def test_docGenerator_ContactSchema():
         "Contact no": {"type":"phone number"},
         "Country code": {"type":"country code"}
     }
-    doc = docGenerator(Schema)
+    doc = doc_generator(Schema)
     assert type(doc) == dict
     assert len(doc) == len(Schema)
     assert type(doc["Name"]) == str

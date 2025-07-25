@@ -7,7 +7,7 @@ from faker import Faker
 
 import secrets
 fake = Faker()
-
+#comment init
 def get_date(inp):
     ptrn = r'^[+-]\d+[dwmy]$'
 

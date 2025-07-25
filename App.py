@@ -154,16 +154,18 @@ def define_schema():
     for (k, v) in schema.items():
         if not k or (isinstance(k, str) and not k.strip()):  # checking to see if any keys are blank/empty
             errors.append('Empty key detected in schema. Do not leave key blank')
-        match v:  # looping through the schema to check if all datatypes are in the datatype map
-            case str():
-                if v.lower().strip() not in datatype_map:
-                    unsupported.append(v)
-            case (val, valinfo):  # datatype, optional parameters to go with datatype gen function
-                if val.lower().strip() not in datatype_map:
-                    unsupported.append(val)
-    if len(unsupported) > 0:  # Returning error message if there are any unsupported datatypes
+
+        if type(v) != dict: #checking that values in schema are in dict format
+            errors.append("Malformed schema, schema values should be dictionaries")
+        if "type" not in v: #if key type is not present return error message
+            errors.append("Schema validation error: 'type' is required for all field definitions.")
+        if "type" in v and v["type"] not in datatype_map: #if key 'type' is present, but the type is not in datatype map return error
+            unsupported.append(v["type"])
+
+    if unsupported:  # Returning error message if there are any unsupported datatypes
         errors.append(f"The following datatypes are unsupported:  {', '.join(unsupported)}")
     if errors:
+        errors = list(set(errors))
         return "Error reading schema:\n" + "\n".join(errors), 400
     else:  # If all datatypes in schema are supported, update list of schema with this schema and return success msg
         key = list(received_json.keys())[0]

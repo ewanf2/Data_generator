@@ -190,7 +190,7 @@ def view(schema_title=None):
     else:
         return list_of_schema
 
-
+#t
 @App.get("/Schemas/<schema_title>/data")
 def Document_generator(schema_title):
     no_of_docs = request.args.get("no", 1)

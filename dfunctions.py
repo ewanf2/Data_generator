@@ -111,5 +111,5 @@ def doc_generator(schema):
             doc[field_name] = user_or_email(n, t="username")
     return doc
 
-def rand_int():
-    return random.randrange(0, 101)
+#def rand_int():
+    #return random.randrange(0, 101)

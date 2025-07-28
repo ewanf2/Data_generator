@@ -7,8 +7,7 @@ from faker import Faker
 
 import secrets
 fake = Faker()
-#comment init
-#yea udd
+
 def get_date(inp):
     ptrn = r'^[+-]\d+[dwmy]$'
 
@@ -111,3 +110,6 @@ def doc_generator(schema):
         elif datatype == "username":
             doc[field_name] = user_or_email(n, t="username")
     return doc
+
+def rand_int():
+    return random.randrange(0, 101)

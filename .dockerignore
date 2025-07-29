@@ -1,0 +1,8 @@
+# Ignore virtual environments
+.venv/
+venv/
+env/
+
+# Ignore IDE configs
+.idea/
+testing.py

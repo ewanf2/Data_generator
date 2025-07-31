@@ -181,7 +181,7 @@ def delete_schema(schema_title):
         del list_of_schema[schema_title]
         return f"Schema: {schema_title}  deleted.", 200
 
-
+test
 @App.get("/Schemas/<schema_title>")
 @App.get("/Schemas")
 def view(schema_title=None):

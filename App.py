@@ -127,7 +127,7 @@ def view_datatypes():
     return "The supported datatypes are:\n" + ", ".join(datatype_map.keys())
 
 @App.get("/greeting")
-def hi()
+def hi():
     return "hey buddy"
 @App.post("/Schemas")
 def define_schema():

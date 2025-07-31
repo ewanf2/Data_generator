@@ -126,7 +126,9 @@ def index():
 def view_datatypes():
     return "The supported datatypes are:\n" + ", ".join(datatype_map.keys())
 
-
+@App.get("/greeting")
+def hi()
+    return "hey buddy"
 @App.post("/Schemas")
 def define_schema():
     """Expects a json with one key-value pair. The key is the schema title, the value is the schema."""

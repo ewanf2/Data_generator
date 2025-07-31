@@ -1,5 +1,5 @@
 services:
   api:
-    build: .
+    image: ewanf2/flask-app
     ports:
       - "5000:80"

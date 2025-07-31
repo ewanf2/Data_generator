@@ -128,7 +128,7 @@ def view_datatypes():
 
 @App.get("/greeting")
 def hi():
-    return "hey buddy"
+    return "hey bro"
 @App.post("/Schemas")
 def define_schema():
     """Expects a json with one key-value pair. The key is the schema title, the value is the schema."""

@@ -1,5 +1,7 @@
 import random
 from datetime import datetime
+import os
+
 import pandas as pd
 from flask import Flask, request
 import re
@@ -98,7 +100,7 @@ def docGenerator_simple(schema):
     """
 
 
-# print(generate_documents_terminal())
+
 
 
 App = Flask(__name__)
@@ -115,10 +117,20 @@ list_of_schema = {
     }
 
 }
+schemas_path = "/app/schemas/schemas.json"
+def save_schemas(schema):
+    with open(schemas_path, "w") as f:
+        json.dump(schema, f)
+    print("Schemas saved to " + schemas_path)
 
+def load_schemas():
+    with open(schemas_path,"r") as f:
+        x = json.load(f)
+    return x
 
 @App.route("/")
 def index():
+    save_schemas({})
     return "Flask app is running!"
 
 
@@ -126,9 +138,7 @@ def index():
 def view_datatypes():
     return "The supported datatypes are:\n" + ", ".join(datatype_map.keys())
 
-@App.get("/greeting")
-def hi():
-    return "hey bro"
+
 @App.post("/Schemas")
 def define_schema():
     """Expects a json with one key-value pair. The key is the schema title, the value is the schema."""
@@ -172,6 +182,7 @@ def define_schema():
     else:  # If all datatypes in schema are supported, update list of schema with this schema and return success msg
         key = list(received_json.keys())[0]
         list_of_schema.update(received_json)
+        save_schemas(schema)
         return f"The following schema has been defined : {key}", 201
 
 

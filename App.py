@@ -119,6 +119,9 @@ list_of_schema = {
 }
 
 schemas_path = "/app/schemas/schemas.json"
+if not schemas_path:
+    with open(schemas_path,"w") as f:
+        json.dump(list_of_schema, f)
 def save_schemas(schema):
     with open(schemas_path, "r") as f:
         data = json.load(f)
@@ -131,10 +134,8 @@ def load_schemas():
     with open(schemas_path,"r") as f:
         x = json.load(f)
     return x
-#save_schemas(list_of_schema)
-if not schemas_path:
-    with open(schemas_path,"w") as f:
-        json.dump(list_of_schema, f)
+
+
 list_of_schema = load_schemas()
 @App.route("/")
 def index():

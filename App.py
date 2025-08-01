@@ -136,7 +136,11 @@ def load_schemas():
     return x
 
 
-list_of_schema = load_schemas()
+try:
+    list_of_schema = load_schemas()
+except Exception:
+    pass
+
 @App.route("/")
 def index():
     save_schemas({})

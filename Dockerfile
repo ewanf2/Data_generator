@@ -8,5 +8,5 @@ RUN pip install -r requirements.txt
 EXPOSE 80
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
-CMD ["/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
 #CMD ["waitress-serve", "--listen=0.0.0.0:80", "App:App"]

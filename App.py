@@ -117,17 +117,24 @@ list_of_schema = {
     }
 
 }
+
 schemas_path = "/app/schemas/schemas.json"
 def save_schemas(schema):
+    with open(schemas_path, "r") as f:
+        data = json.load(f)
+    data.update(schema)
     with open(schemas_path, "w") as f:
-        json.dump(schema, f)
+        json.dump(data, f)
     print("Schemas saved to " + schemas_path)
 
 def load_schemas():
     with open(schemas_path,"r") as f:
         x = json.load(f)
     return x
-
+#save_schemas(list_of_schema)
+if schemas_path == "" or schemas_path is None:
+    save_schemas(list_of_schema)
+list_of_schema = load_schemas()
 @App.route("/")
 def index():
     save_schemas({})
@@ -182,7 +189,7 @@ def define_schema():
     else:  # If all datatypes in schema are supported, update list of schema with this schema and return success msg
         key = list(received_json.keys())[0]
         list_of_schema.update(received_json)
-        save_schemas(schema)
+        save_schemas(list_of_schema)
         return f"The following schema has been defined : {key}", 201
 
 
@@ -198,6 +205,7 @@ def delete_schema(schema_title):
 @App.get("/Schemas/<schema_title>")
 @App.get("/Schemas")
 def view(schema_title=None):
+    list_of_schema = load_schemas()
     if schema_title != None:
         return list_of_schema[schema_title]
     else:
@@ -208,7 +216,7 @@ def view(schema_title=None):
 def Document_generator(schema_title):
     no_of_docs = request.args.get("no", 1)
     filetype = request.headers.get('Accept', 'application/json')
-
+    list_of_schema = load_schemas()
     if schema_title not in list_of_schema.keys():
         return (
             f"This schema {schema_title} has not been defined. Either define this schema or try again with an existing one",

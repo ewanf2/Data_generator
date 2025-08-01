@@ -119,9 +119,8 @@ list_of_schema = {
 }
 
 schemas_path = "/app/schemas/schemas.json"
-if not schemas_path:
-    with open(schemas_path,"w") as f:
-        json.dump(list_of_schema, f)
+
+
 def save_schemas(schema):
     with open(schemas_path, "r") as f:
         data = json.load(f)
@@ -129,17 +128,16 @@ def save_schemas(schema):
     with open(schemas_path, "w") as f:
         json.dump(data, f)
     print("Schemas saved to " + schemas_path)
-
+save_schemas(list_of_schema)
 def load_schemas():
     with open(schemas_path,"r") as f:
         x = json.load(f)
     return x
 
+#list_of_schema = load_schemas()
 
-try:
-    list_of_schema = load_schemas()
-except Exception:
-    pass
+
+
 
 @App.route("/")
 def index():
@@ -249,3 +247,4 @@ def Document_generator(schema_title):
 
 if __name__ == "__main__":
     App.run(host='0.0.0.0', port=5100)
+

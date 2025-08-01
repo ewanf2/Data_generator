@@ -133,7 +133,8 @@ def load_schemas():
     return x
 #save_schemas(list_of_schema)
 if schemas_path == "" or schemas_path is None:
-    save_schemas(list_of_schema)
+    with open(schemas_path,"w") as f:
+        json.dump(list_of_schema, f)
 list_of_schema = load_schemas()
 @App.route("/")
 def index():

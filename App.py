@@ -132,7 +132,7 @@ def load_schemas():
         x = json.load(f)
     return x
 #save_schemas(list_of_schema)
-if schemas_path == "" or schemas_path is None:
+if not schemas_path:
     with open(schemas_path,"w") as f:
         json.dump(list_of_schema, f)
 list_of_schema = load_schemas()

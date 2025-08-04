@@ -52,7 +52,10 @@ def http_status():
 
 datatype_map = {
     'name': fake.name,
-    'date':  lambda **kwargs: str(fake.date_between(**kwargs)),
+    'date': lambda **kwargs: str(fake.date_between(
+    start_date=get_date(kwargs.get('start_date')),
+    end_date=get_date(kwargs.get('end_date'))
+)),
     "uuid": fake.uuid4,
     'email': fake.email,
     'ipv4': fake.ipv4,
@@ -65,7 +68,7 @@ datatype_map = {
     'domain': fake.domain_name,
     "random int": random.randint,
     "country code": fake.country_code,
-    "timestamp": fake.iso8601(),
+    "timestamp": fake.iso8601,
     "HTTP status": http_status,
     "user agent": fake.user_agent,
     "HTTP method": fake.http_method,
@@ -94,10 +97,7 @@ def doc_generator(schema):
     for (field_name, v) in schema.items():
         v = v.copy()
         datatype, params = v.pop("type"), v
-        if "start_date" in params:
-            params["start_date"] = get_date(params["start_date"])
-        if "end_date" in params:
-            params["end_date"] = get_date(params["end_date"])
+
         if len(params) == 0:
             doc[field_name] = data_gen(datatype)
         if len(params) != 0:

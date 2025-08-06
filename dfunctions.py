@@ -21,7 +21,8 @@ def get_date(inp):
         else:
             return (
                 "Invalid input, please enter in the form YYYY-MM-DD or relative date input like +30y or -5d to signify +30 years or -5 days")
-
+def stance():
+    return secrets.choice(["Southpaw", "Orthodox"])
 def http_status():
     status_codes = [
     "500 Internal Server Error: Unexpected condition encountered.",
@@ -49,13 +50,20 @@ def http_status():
     "429 Too Many Requests: The user has sent too many requests in a given amount of time."
     ]
     return secrets.choice(status_codes)
+def generate_date(start_date ="-25y",end_date ="+0d"):
+    start = get_date(start_date)
+    end = get_date(end_date)
+    return str(fake.date_between(start_date=start, end_date=end))
+def sex():
+    return secrets.choice(["male","female"])
+
+def record():
+    w,l,d=random.randint(0,35),random.randint(0,15) ,random.randint(0,2)
+    return f"{w}-{d}-{l}"
 
 datatype_map = {
     'name': fake.name,
-    'date': lambda **kwargs: str(fake.date_between(
-    start_date=get_date(kwargs.get('start_date')),
-    end_date=get_date(kwargs.get('end_date'))
-)),
+    'date': generate_date,
     "uuid": fake.uuid4,
     'email': fake.email,
     'ipv4': fake.ipv4,
@@ -73,7 +81,12 @@ datatype_map = {
     "user agent": fake.user_agent,
     "HTTP method": fake.http_method,
     "hostname": fake.hostname,
-    "HTTP code": fake.http_status_code
+    "HTTP code": fake.http_status_code,
+    "sex": sex,
+    "stance":stance,
+    "record":record,
+    "randfloat":random.uniform,
+    "MethodOfWin":lambda :secrets.choice(["Submission","Decision","Knockout"]),
 
 }
 

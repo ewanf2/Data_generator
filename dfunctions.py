@@ -54,8 +54,7 @@ def generate_date(start_date ="-25y",end_date ="+0d"):
     start = get_date(start_date)
     end = get_date(end_date)
     return str(fake.date_between(start_date=start, end_date=end))
-def sex():
-    return secrets.choice(["male","female"])
+
 
 def record():
     w,l,d=random.randint(0,35),random.randint(0,15) ,random.randint(0,2)
@@ -82,12 +81,14 @@ datatype_map = {
     "HTTP method": fake.http_method,
     "hostname": fake.hostname,
     "HTTP code": fake.http_status_code,
-    "sex": sex,
+    "sex": lambda : secrets.choice(["male","female"]),
     "stance":stance,
     "record":record,
     "randfloat":random.uniform,
+    "win/lose": lambda : secrets.choice(["red","blue"]),
     "MethodOfWin":lambda :secrets.choice(["Submission","Decision","Knockout"]),
-
+    "style" : lambda :secrets.choice(["Boxing","Kickboxing","Wrestling","Jiu-jitsu","Muay thai","Karate"]),
+    "weightclass":lambda :secrets.choice(["Flyweight","Bantamweight","Featherweight","Lightweight","Welterweight","Middleweight","Light Heavyweight","Heavyweight"]),
 }
 
 def data_gen(datatype, info=None):

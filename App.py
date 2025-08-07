@@ -199,10 +199,13 @@ def define_schema():
 
 @App.delete("/Schemas/<schema_title>")
 def delete_schema(schema_title):
+    list_of_schema=load_schemas()
     if schema_title not in list_of_schema:
         return "Schema not in existing list of schemas, unable to delete.", 400
     else:
         del list_of_schema[schema_title]
+        with open(schemas_path, "w") as f:
+            json.dump(list_of_schema, f)
         return f"Schema: {schema_title}  deleted.", 200
 
 #test

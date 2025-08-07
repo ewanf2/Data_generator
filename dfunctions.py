@@ -6,8 +6,12 @@ import re
 from faker import Faker
 
 import secrets
-fake = Faker()
 
+from scipy.stats import skewnorm
+
+fake = Faker()
+def rand_skew(a,mean,mu): #generates skewed normal distribution
+    return str(skewnorm.rvs(a,loc=mean,scale=mu,size=1)[0])
 def get_date(inp):
     ptrn = r'^[+-]\d+[dwmy]$'
 
@@ -85,6 +89,8 @@ datatype_map = {
     "stance":stance,
     "record":record,
     "randfloat":random.uniform,
+    "random normal":random.gauss,
+    "random skew":rand_skew,
     "win/lose": lambda : secrets.choice(["red","blue"]),
     "time":fake.time,
     "MethodOfWin":lambda :secrets.choice(["Submission","Decision","Knockout"]),

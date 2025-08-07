@@ -86,6 +86,7 @@ datatype_map = {
     "record":record,
     "randfloat":random.uniform,
     "win/lose": lambda : secrets.choice(["red","blue"]),
+    "time":fake.time,
     "MethodOfWin":lambda :secrets.choice(["Submission","Decision","Knockout"]),
     "style" : lambda :secrets.choice(["Boxing","Kickboxing","Wrestling","Jiu-jitsu","Muay thai","Karate"]),
     "weightclass":lambda :secrets.choice(["Flyweight","Bantamweight","Featherweight","Lightweight","Welterweight","Middleweight","Light Heavyweight","Heavyweight"]),
@@ -108,21 +109,25 @@ def user_or_email(name, t="user"):
 def doc_generator(schema):
     doc = {}
     n = fake.name()
+    style= data_gen("style")
     for (field_name, v) in schema.items():
         v = v.copy()
         datatype, params = v.pop("type"), v
 
-        if len(params) == 0:
-            doc[field_name] = data_gen(datatype)
-        if len(params) != 0:
-            doc[field_name] = data_gen(datatype, params)
-        ##
-        if datatype == "name":
-            doc[field_name] = n
-        elif datatype == "email":
-            doc[field_name] = user_or_email(n, t="email")
-        elif datatype == "username":
-            doc[field_name] = user_or_email(n, t="username")
+        match (datatype, len(params)):
+            case ("name", _):
+                doc[field_name] = n
+            case ("email", _):
+                doc[field_name] = user_or_email(n, t="email")
+            case ("username", _):
+                doc[field_name] = user_or_email(n, t="username")
+            case ("style", params_len) if params_len == 0:
+                doc[field_name] = style
+
+            case (_, 0):
+                doc[field_name] = data_gen(datatype)
+            case (_, _):
+                doc[field_name] = data_gen(datatype, params)
     return doc
 
 #def rand_int():

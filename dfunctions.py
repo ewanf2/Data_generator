@@ -34,8 +34,6 @@ def get_date(inp):
                 "Invalid input, please enter in the form YYYY-MM-DD or relative date input like +30y or -5d to signify +30 years or -5 days")
 
 
-
-
 def http_status():
     status_codes = [
         "500 Internal Server Error: Unexpected condition encountered.",
@@ -71,13 +69,13 @@ def generate_date(start_date="-25y", end_date="+0d"):
     return str(fake.date_between(start_date=start, end_date=end))
 
 
-
 def gauss_int(mu=0, sigma=1):
     n = round(random.gauss(mu, sigma))
-    if n<0:
+    if n < 0:
         return 0
     else:
         return n
+
 
 w = [1, 1.2, 1.4, 1.8, 1.7, 1.6, 1, 0.8]
 # "Flyweight","Bantamweight","Featherweight","Lightweight","Welterweight","Middleweight","Light Heavyweight","Heavyweight"
@@ -103,7 +101,7 @@ datatype_map = {
     "hostname": fake.hostname,
     "HTTP code": fake.http_status_code,
     "sex": lambda: secrets.choice(["male", "female"]),
-    "stance": lambda :random.choices(["Southpaw","Conventional","Switch"],[1,3,1])[0],
+    "stance": lambda: random.choices(["Southpaw", "Conventional", "Switch"], [1, 3, 0.7])[0],
     "randfloat": random.uniform,
     "random normal": random.gauss,
     "random skew": rand_skew,
@@ -137,23 +135,30 @@ def user_or_email(name, t="user"):
         return name + "@" + secrets.choice(["outlook.com", "gmail.com", "yahoo.com"])
 
 
-mean_heights = {
-    "Flyweight": 160,
-    "Bantamweight": 166,
-    "Featherweight": 171,
-    "Lightweight": 176,
-    "Welterweight": 180,
-    "Middleweight": 185,
-    "Light Heavyweight": 190,
-    "Heavyweight": 192}
-
-
+weightclass_info = {
+    "Flyweight": {"height": 160, "KO_rate": 0.16},
+    "Bantamweight": {"height": 166, "KO_rate": 0.18},
+    "Featherweight": {"height": 171, "KO_rate": 0.25},
+    "Lightweight": {"height": 176, "KO_rate": 0.31},
+    "Welterweight": {"height": 180, "KO_rate": 0.38},
+    "Middleweight": {"height": 185, "KO_rate": 0.43},
+    "Light Heavyweight": {"height": 190, "KO_rate": 0.51},
+    "Heavyweight": {"height": 192, "KO_rate": 0.52}
+}
+fightstyle_info = {
+    "Boxing": {"ko_rate": 0.65, "takedown_rate": 0.05},
+    "Kickboxing": {"ko_rate": 0.55,"takedown_rate": 0.10 },
+    "Wrestling": {"ko_rate": 0.15,"takedown_rate": 0.85},
+    "Jiu-jitsu": {"ko_rate": 0.05,"takedown_rate": 0.70},
+    "Muay thai": {"ko_rate": 0.60,"takedown_rate": 0.20},
+    "Karate": {"ko_rate": 0.40,"takedown_rate": 0.15},
+    "Judo": {"ko_rate": 0.25,"takedown_rate": 0.75 }
+}
 def doc_generator(schema):
     doc = {}
     n = fake.name()
     style = data_gen("style")[0]
     weightclass = data_gen("weightclass")[0]
-    print(weightclass)
     for (field_name, v) in schema.items():
         v = v.copy()
         datatype, params = v.pop("type"), v
@@ -172,10 +177,10 @@ def doc_generator(schema):
             case (_, 0):
                 doc[field_name] = data_gen(datatype)
             case (_, _):
-                if "height" in field_name.lower() or "reach" in field_name.lower(): #making the height and reach match the weightclass
-                    params["mu"]=mean_heights[weightclass]
-                    #print(mean_heights[weightclass])
-                    doc[field_name] = data_gen(datatype,params)
+                if "height" in field_name.lower() or "reach" in field_name.lower():  # making the height and reach match the weightclass
+                    params["mu"] = weightclass_info[weightclass]["height"]
+                    doc[field_name] = data_gen(datatype, params)
+
                 elif field_name.endswith("strikes thrown"):
                     match style:
                         case "Boxing" | "Kickboxing" | "Karate" | "Muay thai":
@@ -183,18 +188,12 @@ def doc_generator(schema):
                         case "Wrestling" | "Jiu-jitsu":
                             doc[field_name] = data_gen("random skew", {"a": 2, "mean": 150, "mu": 50})
                 elif "takedown" in field_name:
-                    match style:
-                        case "Boxing" | "Kickboxing" | "Karate" | "Muay thai":
-                            doc[field_name] = data_gen("random skew", {"a": 6, "mean": 3, "mu": 3})
-                        case "Wrestling" | "Jiu-jitsu":
+                    params["mu"]= fightstyle_info[style]["takedown_rate"]*params["mu"]
+                    doc[field_name] = data_gen(datatype,params)
+                elif "knockout" in field_name.lower() and datatype=="gauss int": #calclating knockout rate based on fighter weight and style
+                    params["mu"] =params["mu"]*(1+( 0.5*(weightclass_info[weightclass]["KO_rate"] + fightstyle_info[style]["ko_rate"])))**2.5
+                    doc[field_name] = min(data_gen(datatype,params),doc["Wins"])
 
-                            doc[field_name] = data_gen("random skew", {"a": 5, "mean": 30, "mu": 15})
-                elif "submissions" in field_name:
-                    match style:
-                        case "Jiu-jitsu":
-                            doc[field_name] = data_gen("random skew", {"a": 5, "mean": 9, "mu": 2})
-                        case _:
-                            doc[field_name] = data_gen("random skew", {"a": 5, "mean": 2, "mu": 1})
                 else:
                     doc[field_name] = data_gen(datatype, params)
     return doc

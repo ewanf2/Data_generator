@@ -1,7 +1,6 @@
 import random
 from datetime import datetime
 
-
 import re
 from faker import Faker
 
@@ -10,12 +9,16 @@ import secrets
 from scipy.stats import skewnorm
 
 fake = Faker()
-def rand_skew(a,mean,mu): #generates skewed normal distribution
-    result= round(skewnorm.rvs(a,loc=mean,scale=mu,size=1)[0])
-    if result <=0:
+
+
+def rand_skew(a, mean, mu):  # generates skewed normal distribution
+    result = round(skewnorm.rvs(a, loc=mean, scale=mu, size=1)[0])
+    if result <= 0:
         return 0
     else:
         return str(result)
+
+
 def get_date(inp):
     ptrn = r'^[+-]\d+[dwmy]$'
 
@@ -29,45 +32,55 @@ def get_date(inp):
         else:
             return (
                 "Invalid input, please enter in the form YYYY-MM-DD or relative date input like +30y or -5d to signify +30 years or -5 days")
-def stance():
-    return secrets.choice(["Southpaw", "Orthodox"])
+
+
+
+
 def http_status():
     status_codes = [
-    "500 Internal Server Error: Unexpected condition encountered.",
-    "501 Not Implemented: Server does not support the functionality.",
-    "502 Bad Gateway: Invalid response from upstream server.",
-    "503 Service Unavailable: Server is temporarily overloaded or under maintenance.",
-    "504 Gateway Timeout: Upstream server failed to send a request in time.",
-    "505 HTTP Version Not Supported: Server does not support HTTP version used in request.",
-    "507 Insufficient Storage: Server is unable to store the representation needed.",
-    "508 Loop Detected: Server detected an infinite loop in processing.",
-    "510 Not Extended: Further extensions are required for the request.",
-    "511 Network Authentication Required: Client must authenticate to gain network access.",
-    "400 Bad Request: The server could not understand the request.",
-    "401 Unauthorized: Authentication is required and has failed.",
-    "403 Forbidden: The server understood the request but refuses to authorize it.",
-    "404 Not Found: The requested resource could not be found.",
-    "405 Method Not Allowed: The method is not supported for the requested resource.",
-    "406 Not Acceptable: Requested resource is only capable of generating unacceptable content.",
-    "408 Request Timeout: The server timed out waiting for the request.",
-    "409 Conflict: The request could not be completed due to a conflict.",
-    "410 Gone: The resource requested is no longer available and will not be available again.",
-    "413 Payload Too Large: The request entity is larger than the server is willing to process.",
-    "414 URI Too Long: The URI provided was too long for the server to process.",
-    "415 Unsupported Media Type: The server does not support the media type transmitted.",
-    "429 Too Many Requests: The user has sent too many requests in a given amount of time."
+        "500 Internal Server Error: Unexpected condition encountered.",
+        "501 Not Implemented: Server does not support the functionality.",
+        "502 Bad Gateway: Invalid response from upstream server.",
+        "503 Service Unavailable: Server is temporarily overloaded or under maintenance.",
+        "504 Gateway Timeout: Upstream server failed to send a request in time.",
+        "505 HTTP Version Not Supported: Server does not support HTTP version used in request.",
+        "507 Insufficient Storage: Server is unable to store the representation needed.",
+        "508 Loop Detected: Server detected an infinite loop in processing.",
+        "510 Not Extended: Further extensions are required for the request.",
+        "511 Network Authentication Required: Client must authenticate to gain network access.",
+        "400 Bad Request: The server could not understand the request.",
+        "401 Unauthorized: Authentication is required and has failed.",
+        "403 Forbidden: The server understood the request but refuses to authorize it.",
+        "404 Not Found: The requested resource could not be found.",
+        "405 Method Not Allowed: The method is not supported for the requested resource.",
+        "406 Not Acceptable: Requested resource is only capable of generating unacceptable content.",
+        "408 Request Timeout: The server timed out waiting for the request.",
+        "409 Conflict: The request could not be completed due to a conflict.",
+        "410 Gone: The resource requested is no longer available and will not be available again.",
+        "413 Payload Too Large: The request entity is larger than the server is willing to process.",
+        "414 URI Too Long: The URI provided was too long for the server to process.",
+        "415 Unsupported Media Type: The server does not support the media type transmitted.",
+        "429 Too Many Requests: The user has sent too many requests in a given amount of time."
     ]
     return secrets.choice(status_codes)
-def generate_date(start_date ="-25y",end_date ="+0d"):
+
+
+def generate_date(start_date="-25y", end_date="+0d"):
     start = get_date(start_date)
     end = get_date(end_date)
     return str(fake.date_between(start_date=start, end_date=end))
 
 
-def record():
-    w,l,d=random.randint(0,35),random.randint(0,15) ,random.randint(0,2)
-    return f"{w}-{d}-{l}"
 
+def gauss_int(mu=0, sigma=1):
+    n = round(random.gauss(mu, sigma))
+    if n<0:
+        return 0
+    else:
+        return n
+
+w = [1, 1.2, 1.4, 1.8, 1.7, 1.6, 1, 0.8]
+# "Flyweight","Bantamweight","Featherweight","Lightweight","Welterweight","Middleweight","Light Heavyweight","Heavyweight"
 datatype_map = {
     'name': fake.name,
     'date': generate_date,
@@ -89,18 +102,23 @@ datatype_map = {
     "HTTP method": fake.http_method,
     "hostname": fake.hostname,
     "HTTP code": fake.http_status_code,
-    "sex": lambda : secrets.choice(["male","female"]),
-    "stance":stance,
-    "record":record,
-    "randfloat":random.uniform,
-    "random normal":random.gauss,
-    "random skew":rand_skew,
-    "win/lose": lambda : secrets.choice(["red","blue"]),
-    "time":fake.time,
-    "MethodOfWin":lambda :secrets.choice(["Submission","Decision","Knockout"]),
-    "style" : lambda :secrets.choice(["Boxing","Kickboxing","Wrestling","Jiu-jitsu","Muay thai","Karate"]),
-    "weightclass":lambda :secrets.choice(["Flyweight","Bantamweight","Featherweight","Lightweight","Welterweight","Middleweight","Light Heavyweight","Heavyweight"]),
+    "sex": lambda: secrets.choice(["male", "female"]),
+    "stance": lambda :random.choices(["Southpaw","Conventional","Switch"],[1,3,1])[0],
+    "randfloat": random.uniform,
+    "random normal": random.gauss,
+    "random skew": rand_skew,
+    "win/lose": lambda: secrets.choice(["red", "blue"]),
+    "time": fake.time,
+    "gauss int": gauss_int,
+    "Org": lambda: random.choices(["UFC", "PFL", "ONE FC", "BELLATOR", "KC"], [3, 1.5, 2, 1.5, 1.8])[0],
+    "MethodOfWin": lambda: secrets.choice(["Submission", "Decision", "Knockout"]),
+    "style": lambda: random.choices(["Boxing", "Kickboxing", "Wrestling", "Jiu-jitsu", "Muay thai", "Karate", "Judo"],
+                                    [1.4, 1.3, 1.8, 1, 1.7, 0.4, 0.4]),
+    "weightclass": lambda: random.choices(
+        ["Flyweight", "Bantamweight", "Featherweight", "Lightweight", "Welterweight", "Middleweight",
+         "Light Heavyweight", "Heavyweight"], w),
 }
+
 
 def data_gen(datatype, info=None):
     func = datatype_map.get(datatype)
@@ -108,6 +126,8 @@ def data_gen(datatype, info=None):
         return func()
     else:
         return func(**info)
+
+
 def user_or_email(name, t="user"):
     name = name.replace(" ", "").lower()
     name = name + str(secrets.randbelow(10) + 1)
@@ -116,10 +136,24 @@ def user_or_email(name, t="user"):
     elif t == "email":
         return name + "@" + secrets.choice(["outlook.com", "gmail.com", "yahoo.com"])
 
+
+mean_heights = {
+    "Flyweight": 160,
+    "Bantamweight": 166,
+    "Featherweight": 171,
+    "Lightweight": 176,
+    "Welterweight": 180,
+    "Middleweight": 185,
+    "Light Heavyweight": 190,
+    "Heavyweight": 192}
+
+
 def doc_generator(schema):
     doc = {}
     n = fake.name()
-    style = "Wrestling"#data_gen("style")
+    style = data_gen("style")[0]
+    weightclass = data_gen("weightclass")[0]
+    print(weightclass)
     for (field_name, v) in schema.items():
         v = v.copy()
         datatype, params = v.pop("type"), v
@@ -131,19 +165,24 @@ def doc_generator(schema):
                 doc[field_name] = user_or_email(n, t="email")
             case ("username", _):
                 doc[field_name] = user_or_email(n, t="username")
-            case ("style", params_len) if params_len == 0:
+            case ("style", 0):
                 doc[field_name] = style
+            case ("weightclass", 0):
+                doc[field_name] = weightclass
             case (_, 0):
                 doc[field_name] = data_gen(datatype)
             case (_, _):
-                if field_name.endswith("strikes thrown"):
+                if "height" in field_name.lower() or "reach" in field_name.lower(): #making the height and reach match the weightclass
+                    params["mu"]=mean_heights[weightclass]
+                    #print(mean_heights[weightclass])
+                    doc[field_name] = data_gen(datatype,params)
+                elif field_name.endswith("strikes thrown"):
                     match style:
-                        case "Boxing"|"Kickboxing"|"Karate"|"Muay thai":
-                            doc[field_name] = data_gen("random skew",{"a":-2,"mean":300,"mu":100})
-                        case "Wrestling"| "Jiu-jitsu":
-                            doc[field_name] = data_gen("random skew", {"a":2,"mean":300,"mu":100})
+                        case "Boxing" | "Kickboxing" | "Karate" | "Muay thai":
+                            doc[field_name] = data_gen("random skew", {"a": -7, "mean": 300, "mu": 50})
+                        case "Wrestling" | "Jiu-jitsu":
+                            doc[field_name] = data_gen("random skew", {"a": 2, "mean": 150, "mu": 50})
                 elif "takedown" in field_name:
-
                     match style:
                         case "Boxing" | "Kickboxing" | "Karate" | "Muay thai":
                             doc[field_name] = data_gen("random skew", {"a": 6, "mean": 3, "mu": 3})
@@ -160,5 +199,5 @@ def doc_generator(schema):
                     doc[field_name] = data_gen(datatype, params)
     return doc
 
-#def rand_int():
-    #return random.randrange(0, 101)
+# def rand_int():
+# return random.randrange(0, 101)

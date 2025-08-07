@@ -25,12 +25,11 @@ def test_data_gen_ipv4():
     result = data_gen("ipv4")
     pattern = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
     assert re.match(pattern, result)
-
-"""def test_data_gen_date():
-    result = data_gen("date",{"start_date":"-10y","end_date":"2025-04-08"})
-    pattern = r'\d{4}-\d{2}-\d{2}'
+def test_data_gen_date():
+    result= data_gen("date")
+    pattern = r'^\d{4}-\d{2}-\d{2}$'
     assert re.match(pattern, result)
-"""
+
 
 def test_data_gen_uuid():
     result = data_gen("uuid")

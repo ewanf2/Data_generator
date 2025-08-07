@@ -11,7 +11,11 @@ from scipy.stats import skewnorm
 
 fake = Faker()
 def rand_skew(a,mean,mu): #generates skewed normal distribution
-    return str(round(skewnorm.rvs(a,loc=mean,scale=mu,size=1)[0]))
+    result= round(skewnorm.rvs(a,loc=mean,scale=mu,size=1)[0])
+    if result <=0:
+        return 0
+    else:
+        return str(result)
 def get_date(inp):
     ptrn = r'^[+-]\d+[dwmy]$'
 
@@ -115,7 +119,7 @@ def user_or_email(name, t="user"):
 def doc_generator(schema):
     doc = {}
     n = fake.name()
-    style= data_gen("style")
+    style = "Wrestling"#data_gen("style")
     for (field_name, v) in schema.items():
         v = v.copy()
         datatype, params = v.pop("type"), v
@@ -129,11 +133,31 @@ def doc_generator(schema):
                 doc[field_name] = user_or_email(n, t="username")
             case ("style", params_len) if params_len == 0:
                 doc[field_name] = style
-
             case (_, 0):
                 doc[field_name] = data_gen(datatype)
             case (_, _):
-                doc[field_name] = data_gen(datatype, params)
+                if field_name.endswith("strikes thrown"):
+                    match style:
+                        case "Boxing"|"Kickboxing"|"Karate"|"Muay thai":
+                            doc[field_name] = data_gen("random skew",{"a":-2,"mean":300,"mu":100})
+                        case "Wrestling"| "Jiu-jitsu":
+                            doc[field_name] = data_gen("random skew", {"a":2,"mean":300,"mu":100})
+                elif "takedown" in field_name:
+
+                    match style:
+                        case "Boxing" | "Kickboxing" | "Karate" | "Muay thai":
+                            doc[field_name] = data_gen("random skew", {"a": 6, "mean": 3, "mu": 3})
+                        case "Wrestling" | "Jiu-jitsu":
+
+                            doc[field_name] = data_gen("random skew", {"a": 5, "mean": 30, "mu": 15})
+                elif "submissions" in field_name:
+                    match style:
+                        case "Jiu-jitsu":
+                            doc[field_name] = data_gen("random skew", {"a": 5, "mean": 9, "mu": 2})
+                        case _:
+                            doc[field_name] = data_gen("random skew", {"a": 5, "mean": 2, "mu": 1})
+                else:
+                    doc[field_name] = data_gen(datatype, params)
     return doc
 
 #def rand_int():

@@ -11,7 +11,7 @@ from scipy.stats import skewnorm
 
 fake = Faker()
 def rand_skew(a,mean,mu): #generates skewed normal distribution
-    return str(skewnorm.rvs(a,loc=mean,scale=mu,size=1)[0])
+    return str(round(skewnorm.rvs(a,loc=mean,scale=mu,size=1)[0]))
 def get_date(inp):
     ptrn = r'^[+-]\d+[dwmy]$'
 

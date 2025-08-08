@@ -173,14 +173,14 @@ def define_schema():
     if not isinstance(schema, dict):  # Checking that it is a dictionary
         errors.append('Invalid schema format: expected a JSON object as the schema value.')
 
-    unsupported = []
+    unsupported = [] #list of any unsupported data types
 
     for (k, v) in schema.items():
         if not k or (isinstance(k, str) and not k.strip()):  # checking to see if any keys are blank/empty
             errors.append('Empty key detected in schema. Do not leave key blank')
         if type(v) != dict: #checking that values in schema are in dict format
             errors.append("Malformed schema, schema values should be dictionaries")
-        if "type" not in v: #if key type is not present return error message
+        if "type" not in v: #if key 'type' is not present return error message
             errors.append("Schema validation error: 'type' is required for all field definitions.")
         if "type" in v and v["type"] not in datatype_map: #if key 'type' is present, but the type is not in datatype map return error
             unsupported.append(v["type"])

@@ -106,7 +106,7 @@ datatype_map = {
     "random normal": random.gauss,
     "random skew": rand_skew,
     "win/lose": lambda: secrets.choice(["red", "blue"]),
-    "time": fake.time,
+    "minutes": lambda max: f"{random.randint(0, max):02d}:{random.randint(0, 59):02d}",
     "gauss int": gauss_int,
     "Org": lambda: random.choices(["UFC", "PFL", "ONE FC", "BELLATOR", "KC"], [3, 1.5, 2, 1.5, 1.8])[0],
     "MethodOfWin": lambda: secrets.choice(["Submission", "Decision", "Knockout"]),
@@ -146,14 +146,16 @@ weightclass_info = {
     "Heavyweight": {"height": 192, "KO_rate": 0.52}
 }
 fightstyle_info = {
-    "Boxing": {"ko_rate": 0.65, "takedown_rate": 0.05},
-    "Kickboxing": {"ko_rate": 0.55,"takedown_rate": 0.10 },
-    "Wrestling": {"ko_rate": 0.15,"takedown_rate": 0.85},
-    "Jiu-jitsu": {"ko_rate": 0.05,"takedown_rate": 0.70},
-    "Muay thai": {"ko_rate": 0.60,"takedown_rate": 0.20},
-    "Karate": {"ko_rate": 0.40,"takedown_rate": 0.15},
-    "Judo": {"ko_rate": 0.25,"takedown_rate": 0.75 }
+    "Boxing": {"ko_rate": 0.65, "takedown_rate": 0.05, "strike_rate": 1.9},
+    "Kickboxing": {"ko_rate": 0.55, "takedown_rate": 0.10, "strike_rate": 1.82},
+    "Wrestling": {"ko_rate": 0.15, "takedown_rate": 0.85, "strike_rate": 1},
+    "Jiu-jitsu": {"ko_rate": 0.05, "takedown_rate": 0.70, "strike_rate": 0.9},
+    "Muay thai": {"ko_rate": 0.60, "takedown_rate": 0.20, "strike_rate": 1.5},
+    "Karate": {"ko_rate": 0.40, "takedown_rate": 0.15, "strike_rate": 1.4},
+    "Judo": {"ko_rate": 0.25, "takedown_rate": 0.75, "strike_rate": 1.1}
 }
+
+
 def doc_generator(schema):
     doc = {}
     n = fake.name()
@@ -180,19 +182,17 @@ def doc_generator(schema):
                 if "height" in field_name.lower() or "reach" in field_name.lower():  # making the height and reach match the weightclass
                     params["mu"] = weightclass_info[weightclass]["height"]
                     doc[field_name] = data_gen(datatype, params)
+                elif field_name.endswith("strikes thrown") and datatype == "gauss int": #number of strikes thrown should depend on fighting style
+                    params["mu"] = fightstyle_info[weightclass]["strike_rate"] * params["mu"]
+                    doc[field_name] = data_gen(datatype, params)
 
-                elif field_name.endswith("strikes thrown"):
-                    match style:
-                        case "Boxing" | "Kickboxing" | "Karate" | "Muay thai":
-                            doc[field_name] = data_gen("random skew", {"a": -7, "mean": 300, "mu": 50})
-                        case "Wrestling" | "Jiu-jitsu":
-                            doc[field_name] = data_gen("random skew", {"a": 2, "mean": 150, "mu": 50})
-                elif "takedown" in field_name:
-                    params["mu"]= fightstyle_info[style]["takedown_rate"]*params["mu"]
-                    doc[field_name] = data_gen(datatype,params)
-                elif "knockout" in field_name.lower() and datatype=="gauss int": #calclating knockout rate based on fighter weight and style
-                    params["mu"] =params["mu"]*(1+( 0.5*(weightclass_info[weightclass]["KO_rate"] + fightstyle_info[style]["ko_rate"])))**2.5
-                    doc[field_name] = min(data_gen(datatype,params),doc["Wins"])
+                elif "takedown" in field_name:  # making takedown rate depend on fighter style
+                    params["mu"] = fightstyle_info[style]["takedown_rate"] * params["mu"]
+                    doc[field_name] = data_gen(datatype, params)
+                elif "knockout" in field_name.lower() and datatype == "gauss int":  # calclating knockout rate based on fighter weight and style
+                    params["mu"] = params["mu"] * (1 + (0.5 * (
+                                weightclass_info[weightclass]["KO_rate"] + fightstyle_info[style]["ko_rate"]))) ** 2.5
+                    doc[field_name] = min(data_gen(datatype, params), doc["Wins"])
 
                 else:
                     doc[field_name] = data_gen(datatype, params)

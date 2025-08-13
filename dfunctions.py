@@ -112,15 +112,17 @@ datatype_map = {
     "weightclass": lambda: random.choices(
         ["Flyweight", "Bantamweight", "Featherweight", "Lightweight", "Welterweight", "Middleweight",
          "Light Heavyweight", "Heavyweight"], [1, 1.2, 1.4, 1.8, 1.7, 1.6, 1, 0.8]),
+    "linear": lambda x,m,c: m*x + c ,
+    "quadratic": lambda x,m,c: m*x**2 + c
 }
 
 
-def data_gen(datatype, info=None):
+def data_gen(datatype, kwargs=None):
     func = datatype_map.get(datatype)
-    if info == {} or info is None:
+    if kwargs == {} or kwargs is None:
         return func()
     else:
-        return func(**info)
+        return func(**kwargs)
 
 
 def user_or_email(name, t="user"):
@@ -171,51 +173,7 @@ def apply_field_modifications(params, field_to_modify, style,
     return data_gen("gauss int", modify_params)
 
 
-def doc_generator2(schema):
-    doc = {}
-    n = fake.name()
-    style = data_gen("style")[0]
-    weightclass = data_gen("weightclass")[0]
-    for (field_name, v) in schema.items():
-        v = v.copy()
-        datatype, params = v.pop("type"), v
 
-        match (datatype, len(params)):
-            case ("name", _):
-                doc[field_name] = n
-            case ("email", _):
-                doc[field_name] = user_or_email(n, t="email")
-            case ("username", _):
-                doc[field_name] = user_or_email(n, t="username")
-            case ("style", 0):
-                doc[field_name] = style
-            case ("weightclass", 0):
-                doc[field_name] = weightclass
-            case (_, 0):
-                doc[field_name] = data_gen(datatype)
-            case (_, _):
-                if "height" in field_name.lower() or "reach" in field_name.lower():  # making the height and reach match the weightclass
-                    params["mu"] = weightclass_info[weightclass]["height"]
-                    doc[field_name] = data_gen(datatype, params)
-
-                elif field_name.endswith(
-                        "strikes thrown") and datatype == "gauss int":  # number of strikes thrown should depend on fighting style
-                    params["mu"] = fightstyle_info[style]["strike_rate"] * params["mu"]
-                    doc[field_name] = data_gen(datatype, params)
-
-                elif "takedown" in field_name:  # modifying the mean of this normal distribution by the takedown rate which depends on fight style
-                    params["mu"] = fightstyle_info[style]["takedown_rate"] * params["mu"]
-                    doc[field_name] = data_gen(datatype, params)
-
-                elif "knockout" in field_name.lower() and datatype == "gauss int":  # calclating knockout rate based on fighter weight and style
-                    params["mu"] = params["mu"] * (1 + (0.5 * (
-                        # modifying the mean by average KO_rate which depends on the weightclass and fight style
-                            weightclass_info[weightclass]["KO_rate"] + fightstyle_info[style]["ko_rate"]))) ** 2.5
-                    doc[field_name] = min(data_gen(datatype, params), doc["Wins"])
-
-                else:
-                    doc[field_name] = data_gen(datatype, params)
-    return doc
 
 
 def doc_generator(schema):

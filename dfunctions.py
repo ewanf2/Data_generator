@@ -113,7 +113,9 @@ datatype_map = {
         ["Flyweight", "Bantamweight", "Featherweight", "Lightweight", "Welterweight", "Middleweight",
          "Light Heavyweight", "Heavyweight"], [1, 1.2, 1.4, 1.8, 1.7, 1.6, 1, 0.8]),
     "linear": lambda x,m,c: m*x + c ,
-    "quadratic": lambda x,m,c: m*x**2 + c
+    "quadratic": lambda x,m,c: m*x**2 + c,
+    "Sizes": lambda: random.choices(["Flyweight","Lightweight","Heavyweight"])[0],
+    "style small": lambda: random.choices(["boxer","wrestler"])[0]
 }
 
 

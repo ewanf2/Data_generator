@@ -3,7 +3,7 @@ from datetime import datetime
 
 import re
 from faker import Faker
-
+import numexpr
 import secrets
 
 from scipy.stats import skewnorm
@@ -136,49 +136,14 @@ def user_or_email(name, t="user"):
         return name + "@" + secrets.choice(["outlook.com", "gmail.com", "yahoo.com"])
 
 
-weightclass_info = {
-    "Flyweight": {"height": 160, "KO_rate": 0.16},
-    "Bantamweight": {"height": 166, "KO_rate": 0.18},
-    "Featherweight": {"height": 171, "KO_rate": 0.25},
-    "Lightweight": {"height": 176, "KO_rate": 0.31},
-    "Welterweight": {"height": 180, "KO_rate": 0.38},
-    "Middleweight": {"height": 185, "KO_rate": 0.43},
-    "Light Heavyweight": {"height": 190, "KO_rate": 0.51},
-    "Heavyweight": {"height": 192, "KO_rate": 0.52}
-}
-fightstyle_info = {
-    "Boxing": {"ko_rate": 0.65, "takedown_rate": 0.05, "strike_rate": 1.9, "sub_rate": 0.05},
-    "Kickboxing": {"ko_rate": 0.55, "takedown_rate": 0.10, "strike_rate": 1.82, "sub_rate": 0.05},
-    "Wrestling": {"ko_rate": 0.15, "takedown_rate": 0.85, "strike_rate": 1, "sub_rate": 0.55},
-    "Jiu-jitsu": {"ko_rate": 0.05, "takedown_rate": 0.70, "strike_rate": 0.9, "sub_rate": 0.80},
-    "Muay thai": {"ko_rate": 0.60, "takedown_rate": 0.20, "strike_rate": 1.5, "sub_rate": 0.08},
-    "Karate": {"ko_rate": 0.40, "takedown_rate": 0.15, "strike_rate": 1.4, "sub_rate": 0.10},
-    "Judo": {"ko_rate": 0.25, "takedown_rate": 0.75, "strike_rate": 1.1, "sub_rate": 0.70}
-}
-
-
-def apply_field_modifications(params, field_to_modify, style,
-                              weightclass):  # modifying the params for KO rate,takedown and strike rate data generation
-    # function only works on gauss int
-    modify_params = params.copy()
-    match field_to_modify:
-        case "height/reach":  # making the height and reach match the weightclass
-            modify_params["mu"] = weightclass_info[weightclass]["height"]
-        case "strikes":
-            modify_params["mu"] = fightstyle_info[style]["strike_rate"] * params["mu"]
-        case "takedowns":
-            modify_params["mu"] = fightstyle_info[style]["takedown_rate"] * params["mu"]
-        case "submissions":
-            modify_params["mu"] = params["mu"] * fightstyle_info[style]["sub_rate"]
-        case "knockout":
-            modify_params["mu"] = fightstyle_info[style]["ko_rate"] * weightclass_info[weightclass]["KO_rate"] * 5 * params["mu"]
-    return data_gen("gauss int", modify_params)
 
 
 
 
 
-def doc_generator(schema):
+
+
+"""def doc_generator2(schema):
     doc = {}
     n = fake.name()
     style = data_gen("style")[0]
@@ -218,4 +183,66 @@ def doc_generator(schema):
                                           doc["Wins"])
                 else:
                     doc[field_name] = data_gen(datatype, params)
+    return doc"""
+
+def doc_generator(schema): #new doc_generator function, less hardcoded
+    primary_fields,dependent_fields,doc = {},{},{}
+
+    for (field_name,field_spec) in schema.items():  # creating dictionaries for fields that depend on other fields and fields that don't
+        if "dependencies" in field_spec:
+            dependent_fields[field_name] = field_spec
+        else:
+            primary_fields[field_name] = field_spec
+
+    for (field_name, field_spec) in primary_fields.items():  # generating fields that don't depend on other fields
+        datatype = field_spec["type"]
+        parameters = field_spec["parameters"] if "parameters" in field_spec else None
+
+        doc[field_name] = data_gen(datatype, parameters)
+
+    for (field_name, field_spec) in dependent_fields.items():  # generating data for all the dependent fields
+        dependencies = field_spec["dependencies"]
+        # print(dependencies)
+        datatype = field_spec["type"]
+        if "categorical" in dependencies:
+
+
+            dependencies = field_spec["dependencies"].copy()
+            source_field_names = dependencies.pop("categorical")
+
+            match source_field_names:
+                case list(): #more than one field categorical dependency
+                    #print(f"source_field_names: {source_field_names}")
+
+                    sources = { i : doc[i] for i in source_field_names} #the other fields that this field depends on
+                    sources_values = list(sources.values())
+                    #print(sources_values)
+                    params = dependencies
+                    #print(params)
+                    for value in sources_values:
+                        params = params[value]
+                        #print(params)
+                    #print(params)
+                    doc[field_name] = data_gen(datatype, params)
+
+                case str(): #where the source field dependencies is only one field
+
+                    #print(f"source_field_name: {source_field_names}")
+                    category_value = doc[source_field_names]
+                    #print(f" category_value: {category_value}")
+                    params = dependencies[category_value]
+                    doc[field_name] = data_gen(datatype, params)
+
+        elif "numerical" in dependencies:
+            dependencies = field_spec["dependencies"].copy()
+            source_field_names, formula = dependencies.pop("numerical"), dependencies[
+                "formula"]  # the field name we have a numerical dependency on
+            for i in source_field_names:
+                source_field_value = doc[i]  # the value of that field in this document
+                # print(f" source field: {i} | source field val: {source_field_value}")
+                formula = formula.replace(i, str(doc[i]))
+            #print(f" formula: {formula} = {eval(formula)}")
+
+            doc[field_name] = eval(formula)
+
     return doc

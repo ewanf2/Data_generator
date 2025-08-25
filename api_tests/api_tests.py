@@ -11,7 +11,7 @@ import pytest
 #from App import data_gen, doc_generator
 @pytest.fixture(scope="session")
 def api_request_context( playwright: Playwright ) -> Generator[APIRequestContext, None, None]:
-    request_context = playwright.request.new_context(base_url="http://localhost:5050")
+    request_context = playwright.request.new_context(base_url="http://localhost:80")
     yield request_context
     request_context.dispose()
 

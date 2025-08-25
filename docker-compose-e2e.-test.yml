@@ -1,7 +1,7 @@
 services:
   api:
-    image: ewanf2/flask-app
-    #build: . #testing on local pc
+
+    build: . #local testing
     container_name: flask-app
     ports:
       - "5050:80"

@@ -23,20 +23,26 @@ def test_data_gen_email():
     pattern = r'^[\w\.\-]+@[\w\-]+\.\w{2,}$'
     assert re.match(pattern, result)
 
+
 def test_rand_skew():
-    result = rand_skew(1,1,1)
+    result = rand_skew(1, 1, 1)
     assert type(result) == str
+
 
 def test_gauss_int():
     result = gauss_int()
     assert type(result) == int
-    res2 = gauss_int(-200,0)
+    res2 = gauss_int(-200, 0)
     assert res2 == 0
+
+
 def test_user_or_email():
     result = user_or_email("Jon")
     assert type(result) == str
-    res2 = user_or_email("Jon","email")
+    res2 = user_or_email("Jon", "email")
     assert type(res2) == str
+
+
 def test_data_gen_ipv4():
     result = data_gen("ipv4")
     pattern = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
@@ -159,19 +165,22 @@ def test_generate_primary_fields():
 
 def test_generate_dependent_fields():
     test_schema = {"Name": {"type": "name"},
-                   "sex": {"type": "sex", "parameters": {"a": 2, "b": 1}},
-                   "age": {"type": "random int", "parameters": {"a": 19, "b": 100}},
-                   "tallness": {"type": "gauss int",
-                                "dependencies": {"categorical": "sex", "male": {"mu": 179, "sigma": 10},
-                                                 "female": {"mu": 150, "sigma": 10}}
-                                }
-                   }
-    primary_fields, dependent_fields = primary_and_dependent_fields(test_schema)  # Generating list of primary and dependent fields
+                     "sex": {"type": "sex", "parameters": {"a": 1, "b": 1}},
+                     "age": {"type": "random int", "parameters": {"a": 19, "b": 100}},
+                     "tallness": {"type": "gauss int",
+                                  "dependencies": {"categorical": "sex",
+                                                   "male": {"mu": 179, "sigma": 10},
+                                                   "female": {"mu": 161, "sigma": 10}}
+                                  },
+                     "weight": {"type": "gauss int",
+                                "dependencies": {"numerical": ["age"], "formula": "age*0.7+40"}}
+                     }
+    primary_fields, dependent_fields = primary_and_dependent_fields(
+        test_schema)  # Generating list of primary and dependent fields
     doc = {}
     doc.update(generate_primary_fields(primary_fields))  # generating primary field data first
-    dependents =generate_dependent_fields(dependent_fields, doc)
+    dependents = generate_dependent_fields(dependent_fields, doc)
     doc.update(dependents)
     assert type(dependents) == dict
-    assert  "tallness" in dependents
-
-
+    assert "tallness" in dependents
+    assert "weight" in dependents

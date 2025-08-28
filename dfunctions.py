@@ -157,7 +157,9 @@ def generate_primary_fields(primary_fields):
 
 def generate_dependent_fields(dependent_fields,doc):
     document ={}
-    doc=  doc.copy()
+    generated_docs_so_far=  doc.copy()
+    dependent_fields = dependent_fields.copy()
+    print(generated_docs_so_far)
     for (field_name, field_spec) in dependent_fields.items():  # generating data for all the dependent fields
         dependencies = field_spec["dependencies"]
         # print(dependencies)
@@ -172,17 +174,17 @@ def generate_dependent_fields(dependent_fields,doc):
                 case list(): #more than one field categorical dependency
                     #print(f"source_field_names: {source_field_names}")
 
-                    sources = { i : doc[i] for i in source_field_names} #the other fields that this field depends on
+                    sources = {i: generated_docs_so_far[i] for i in source_field_names} #the other fields that this field depends on
                     sources_values = list(sources.values())
-                    print(sources_values)
+                    #print(sources_values)
                     params = dependencies
                     #print(params)
                     for value in sources_values:
                         params = params[value]
-                        print(params)
+                        #print(params)
                     #print(params)
                     document[field_name] = data_gen(datatype, params)
-
+                    generated_docs_so_far.update(document)
                 case str(): #where the source field dependencies is only one field
 
                     #print(f"source_field_name: {source_field_names}")
@@ -190,18 +192,19 @@ def generate_dependent_fields(dependent_fields,doc):
                     #print(f" category_value: {category_value}")
                     params = dependencies[category_value]
                     document[field_name] = data_gen(datatype, params)
-
+                    generated_docs_so_far.update(document)
         elif "numerical" in dependencies:
             dependencies = field_spec["dependencies"].copy()
             source_field_names, formula = dependencies.pop("numerical"), dependencies[
                 "formula"]  # the field name we have a numerical dependency on
             for i in source_field_names:
-                source_field_value = doc[i]  # the value of that field in this document
+                source_field_value = generated_docs_so_far  # the value of that field in this document
                 # print(f" source field: {i} | source field val: {source_field_value}")
-                formula = formula.replace(i, str(doc[i]))
+                formula = formula.replace(i, str(generated_docs_so_far[i]))
             #print(f" formula: {formula} = {eval(formula)}")
 
             document[field_name] = eval(formula)
+            generated_docs_so_far.update(document)
     return document
 
 def doc_generator(schema): #new doc_generator function, less hardcoded

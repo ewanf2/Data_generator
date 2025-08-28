@@ -77,7 +77,6 @@ def gauss_int(mu=0, sigma=1):
         return n
 
 
-
 # "Flyweight","Bantamweight","Featherweight","Lightweight","Welterweight","Middleweight","Light Heavyweight","Heavyweight"
 datatype_map = {
     'name': fake.name,
@@ -106,16 +105,18 @@ datatype_map = {
     "random normal": random.gauss,
     "gauss int": gauss_int,
     "clamped gauss": lambda mu, sigma, max: min(gauss_int(mu, sigma), max),
-    "Org": lambda: random.choices(["UFC", "PFL", "ONE FC", "BELLATOR", "KC"], [3, 1.5, 2, 1.5, 1.8])[0],
+    "Org": lambda: random.choices(
+        ["UFC", "PFL", "ONE FC", "BELLATOR", "KC", "Cage Warriors", "Invicta FC", "RIZIN", "EFC", "KSW"],
+        [3, 1.5, 2, 1.5, 1.8, 0.8, 0.5, 0.6, 0.4, 0.3])[0],
     "style": lambda: random.choices(["boxer", "kickboxing", "wrestler", "jiu-jitsu", "muay thai", "karate", "judo"],
                                     [1.4, 1.3, 1.8, 1, 1.7, 0.4, 0.4])[0],
     "weightclass": lambda: random.choices(
         ["Flyweight", "Bantamweight", "Featherweight", "Lightweight", "Welterweight", "Middleweight",
          "Light Heavyweight", "Heavyweight"], [1, 1.2, 1.4, 1.8, 1.7, 1.6, 1, 0.8])[0],
-    "linear": lambda x,m,c: m*x + c ,
-    "quadratic": lambda x,m,c: m*x**2 + c,
-    "Sizes": lambda: random.choices(["Flyweight","Lightweight","Heavyweight"])[0],
-    "style small": lambda: random.choices(["boxer","wrestler"])[0]
+    "linear": lambda x, m, c: m * x + c,
+    "quadratic": lambda x, m, c: m * x ** 2 + c,
+    "Sizes": lambda: random.choices(["Flyweight", "Lightweight", "Heavyweight"])[0],
+    "style small": lambda: random.choices(["boxer", "wrestler"])[0]
 }
 
 
@@ -137,16 +138,18 @@ def user_or_email(name, t="user"):
 
 
 def primary_and_dependent_fields(schema):
-    primary_fields, dependent_fields = {},{}
-    for (field_name,field_spec) in schema.items():  # creating dictionaries for fields that depend on other fields and fields that don't
+    primary_fields, dependent_fields = {}, {}
+    for (field_name,
+         field_spec) in schema.items():  # creating dictionaries for fields that depend on other fields and fields that don't
         if "dependencies" in field_spec:
             dependent_fields[field_name] = field_spec
         else:
             primary_fields[field_name] = field_spec
     return primary_fields, dependent_fields
 
+
 def generate_primary_fields(primary_fields):
-    document ={}
+    document = {}
     for (field_name, field_spec) in primary_fields.items():  # generating fields that don't depend on other fields
         datatype = field_spec["type"]
         parameters = field_spec["parameters"] if "parameters" in field_spec else None
@@ -155,41 +158,41 @@ def generate_primary_fields(primary_fields):
     return document
 
 
-def generate_dependent_fields(dependent_fields,doc):
-    document ={}
-    generated_docs_so_far=  doc.copy()
+def generate_dependent_fields(dependent_fields, doc):
+    document = {}
+    generated_docs_so_far = doc.copy()
     dependent_fields = dependent_fields.copy()
-    print(generated_docs_so_far)
+    #print(generated_docs_so_far)
     for (field_name, field_spec) in dependent_fields.items():  # generating data for all the dependent fields
         dependencies = field_spec["dependencies"]
         # print(dependencies)
         datatype = field_spec["type"]
         if "categorical" in dependencies:
 
-
             dependencies = field_spec["dependencies"].copy()
             source_field_names = dependencies.pop("categorical")
 
             match source_field_names:
-                case list(): #more than one field categorical dependency
-                    #print(f"source_field_names: {source_field_names}")
+                case list():  # more than one field categorical dependency
+                    # print(f"source_field_names: {source_field_names}")
 
-                    sources = {i: generated_docs_so_far[i] for i in source_field_names} #the other fields that this field depends on
+                    sources = {i: generated_docs_so_far[i] for i in
+                               source_field_names}  # the other fields that this field depends on
                     sources_values = list(sources.values())
-                    #print(sources_values)
+                    # print(sources_values)
                     params = dependencies
-                    #print(params)
+                    # print(params)
                     for value in sources_values:
                         params = params[value]
-                        #print(params)
-                    #print(params)
+                        # print(params)
+                    # print(params)
                     document[field_name] = data_gen(datatype, params)
                     generated_docs_so_far.update(document)
-                case str(): #where the source field dependencies is only one field
+                case str():  # where the source field dependencies is only one field
 
-                    #print(f"source_field_name: {source_field_names}")
+                    # print(f"source_field_name: {source_field_names}")
                     category_value = doc[source_field_names]
-                    #print(f" category_value: {category_value}")
+                    # print(f" category_value: {category_value}")
                     params = dependencies[category_value]
                     document[field_name] = data_gen(datatype, params)
                     generated_docs_so_far.update(document)
@@ -201,15 +204,17 @@ def generate_dependent_fields(dependent_fields,doc):
                 source_field_value = generated_docs_so_far  # the value of that field in this document
                 # print(f" source field: {i} | source field val: {source_field_value}")
                 formula = formula.replace(i, str(generated_docs_so_far[i]))
-            #print(f" formula: {formula} = {eval(formula)}")
+            # print(f" formula: {formula} = {eval(formula)}")
 
             document[field_name] = eval(formula)
             generated_docs_so_far.update(document)
     return document
 
-def doc_generator(schema): #new doc_generator function, less hardcoded
-    primary_fields,dependent_fields = primary_and_dependent_fields(schema) #Generating list of primary and dependent fields
+
+def doc_generator(schema):  # new doc_generator function, less hardcoded
+    primary_fields, dependent_fields = primary_and_dependent_fields(
+        schema)  # Generating list of primary and dependent fields
     doc = {}
-    doc.update(generate_primary_fields(primary_fields)) #generating primary field data first
-    doc.update(generate_dependent_fields(dependent_fields,doc))
+    doc.update(generate_primary_fields(primary_fields))  # generating primary field data first
+    doc.update(generate_dependent_fields(dependent_fields, doc))
     return doc

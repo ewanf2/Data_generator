@@ -107,11 +107,11 @@ datatype_map = {
     "gauss int": gauss_int,
     "clamped gauss": lambda mu, sigma, max: min(gauss_int(mu, sigma), max),
     "Org": lambda: random.choices(["UFC", "PFL", "ONE FC", "BELLATOR", "KC"], [3, 1.5, 2, 1.5, 1.8])[0],
-    "style": lambda: random.choices(["Boxing", "Kickboxing", "Wrestling", "Jiu-jitsu", "Muay thai", "Karate", "Judo"],
-                                    [1.4, 1.3, 1.8, 1, 1.7, 0.4, 0.4]),
+    "style": lambda: random.choices(["boxer", "kickboxing", "wrestler", "jiu-jitsu", "muay thai", "karate", "judo"],
+                                    [1.4, 1.3, 1.8, 1, 1.7, 0.4, 0.4])[0],
     "weightclass": lambda: random.choices(
         ["Flyweight", "Bantamweight", "Featherweight", "Lightweight", "Welterweight", "Middleweight",
-         "Light Heavyweight", "Heavyweight"], [1, 1.2, 1.4, 1.8, 1.7, 1.6, 1, 0.8]),
+         "Light Heavyweight", "Heavyweight"], [1, 1.2, 1.4, 1.8, 1.7, 1.6, 1, 0.8])[0],
     "linear": lambda x,m,c: m*x + c ,
     "quadratic": lambda x,m,c: m*x**2 + c,
     "Sizes": lambda: random.choices(["Flyweight","Lightweight","Heavyweight"])[0],
@@ -174,12 +174,12 @@ def generate_dependent_fields(dependent_fields,doc):
 
                     sources = { i : doc[i] for i in source_field_names} #the other fields that this field depends on
                     sources_values = list(sources.values())
-                    #print(sources_values)
+                    print(sources_values)
                     params = dependencies
                     #print(params)
                     for value in sources_values:
                         params = params[value]
-                        #print(params)
+                        print(params)
                     #print(params)
                     document[field_name] = data_gen(datatype, params)
 

@@ -30,10 +30,13 @@ def test_rand_skew():
 def test_gauss_int():
     result = gauss_int()
     assert type(result) == int
-
+    res2 = gauss_int(-200,0)
+    assert res2 == 0
 def test_user_or_email():
     result = user_or_email("Jon")
     assert type(result) == str
+    res2 = user_or_email("Jon","email")
+    assert type(res2) == str
 def test_data_gen_ipv4():
     result = data_gen("ipv4")
     pattern = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'

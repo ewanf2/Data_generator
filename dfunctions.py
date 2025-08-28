@@ -157,6 +157,7 @@ def generate_primary_fields(primary_fields):
 
 def generate_dependent_fields(dependent_fields,doc):
     document ={}
+    doc=  doc.copy()
     for (field_name, field_spec) in dependent_fields.items():  # generating data for all the dependent fields
         dependencies = field_spec["dependencies"]
         # print(dependencies)
@@ -180,7 +181,7 @@ def generate_dependent_fields(dependent_fields,doc):
                         params = params[value]
                         #print(params)
                     #print(params)
-                    doc[field_name] = data_gen(datatype, params)
+                    document[field_name] = data_gen(datatype, params)
 
                 case str(): #where the source field dependencies is only one field
 
@@ -188,7 +189,7 @@ def generate_dependent_fields(dependent_fields,doc):
                     category_value = doc[source_field_names]
                     #print(f" category_value: {category_value}")
                     params = dependencies[category_value]
-                    doc[field_name] = data_gen(datatype, params)
+                    document[field_name] = data_gen(datatype, params)
 
         elif "numerical" in dependencies:
             dependencies = field_spec["dependencies"].copy()
@@ -205,7 +206,7 @@ def generate_dependent_fields(dependent_fields,doc):
 
 def doc_generator(schema): #new doc_generator function, less hardcoded
     primary_fields,dependent_fields = primary_and_dependent_fields(schema) #Generating list of primary and dependent fields
-    doc ={}
+    doc = {}
     doc.update(generate_primary_fields(primary_fields)) #generating primary field data first
     doc.update(generate_dependent_fields(dependent_fields,doc))
     return doc

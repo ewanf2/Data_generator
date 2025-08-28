@@ -6,3 +6,8 @@ env/
 # Ignore IDE configs
 .idea/
 testing.py
+__pycache__/
+*.pyc
+.git
+tests/
+docs/

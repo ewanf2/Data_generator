@@ -14,7 +14,7 @@ fake = Faker()
 def rand_skew(a, mean, mu):  # generates skewed normal distribution
     result = round(skewnorm.rvs(a, loc=mean, scale=mu, size=1)[0])
     if result <= 0:
-        return 0
+        return str(0)
     else:
         return str(result)
 

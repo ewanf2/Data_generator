@@ -136,70 +136,27 @@ def user_or_email(name, t="user"):
         return name + "@" + secrets.choice(["outlook.com", "gmail.com", "yahoo.com"])
 
 
-
-
-
-
-
-
-
-"""def doc_generator2(schema):
-    doc = {}
-    n = fake.name()
-    style = data_gen("style")[0]
-    weightclass = data_gen("weightclass")[0]
-    for (field_name, v) in schema.items():
-        v = v.copy()
-        datatype, params = v.pop("type"), v
-
-        match (datatype, len(params)):
-            case ("name", _):
-                doc[field_name] = n
-            case ("email", _):
-                doc[field_name] = user_or_email(n, t="email")
-            case ("username", _):
-                doc[field_name] = user_or_email(n, t="username")
-            case ("style", 0):
-                doc[field_name] = style
-            case ("weightclass", 0):
-                doc[field_name] = weightclass
-            case (_, 0):
-                doc[field_name] = data_gen(datatype)
-            case (_, _):
-                if "height" in field_name.lower() or "reach" in field_name.lower() and datatype == "gauss int":  # making the height and reach match the weightclass
-                    doc[field_name] = apply_field_modifications(params, "height/reach", style, weightclass)
-
-                elif field_name.endswith(
-                        "strikes thrown") and datatype == "gauss int":  # number of strikes thrown should depend on fighting style
-                    doc[field_name] = apply_field_modifications(params, "strikes", style, weightclass)
-
-                elif "takedown" in field_name and datatype == "gauss int":  # modifying the mean of this normal distribution by the takedown rate which depends on fight style
-                    doc[field_name] = apply_field_modifications(params, "takedowns", style, weightclass)
-                elif "submission" in field_name.lower() and datatype == "gauss int":  # calclating knockout rate based on fighter weight and style
-                    doc[field_name] = min(apply_field_modifications(params, "submissions", style, weightclass),doc["Wins"]-doc["Knockout wins"])
-
-                elif "knockout" in field_name.lower() and datatype == "gauss int":  # calclating knockout rate based on fighter weight and style
-                    doc[field_name] = min(apply_field_modifications(params, "knockout", style, weightclass),
-                                          doc["Wins"])
-                else:
-                    doc[field_name] = data_gen(datatype, params)
-    return doc"""
-
-def doc_generator(schema): #new doc_generator function, less hardcoded
-    primary_fields,dependent_fields,doc = {},{},{}
-
+def primary_and_dependent_fields(schema):
+    primary_fields, dependent_fields = {},{}
     for (field_name,field_spec) in schema.items():  # creating dictionaries for fields that depend on other fields and fields that don't
         if "dependencies" in field_spec:
             dependent_fields[field_name] = field_spec
         else:
             primary_fields[field_name] = field_spec
+    return primary_fields, dependent_fields
 
+def generate_primary_fields(primary_fields):
+    document ={}
     for (field_name, field_spec) in primary_fields.items():  # generating fields that don't depend on other fields
         datatype = field_spec["type"]
         parameters = field_spec["parameters"] if "parameters" in field_spec else None
 
-        doc[field_name] = data_gen(datatype, parameters)
+        document[field_name] = data_gen(datatype, parameters)
+    return document
 
+
+def generate_dependent_fields(dependent_fields,doc):
+    document ={}
     for (field_name, field_spec) in dependent_fields.items():  # generating data for all the dependent fields
         dependencies = field_spec["dependencies"]
         # print(dependencies)
@@ -243,6 +200,12 @@ def doc_generator(schema): #new doc_generator function, less hardcoded
                 formula = formula.replace(i, str(doc[i]))
             #print(f" formula: {formula} = {eval(formula)}")
 
-            doc[field_name] = eval(formula)
+            document[field_name] = eval(formula)
+    return document
 
+def doc_generator(schema): #new doc_generator function, less hardcoded
+    primary_fields,dependent_fields = primary_and_dependent_fields(schema) #Generating list of primary and dependent fields
+    doc ={}
+    doc.update(generate_primary_fields(primary_fields)) #generating primary field data first
+    doc.update(generate_dependent_fields(dependent_fields,doc))
     return doc

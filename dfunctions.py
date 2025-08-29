@@ -212,8 +212,7 @@ def generate_dependent_fields(dependent_fields, doc):
 
 
 def doc_generator(schema):  # new doc_generator function, less hardcoded
-    primary_fields, dependent_fields = primary_and_dependent_fields(
-        schema)  # Generating list of primary and dependent fields
+    primary_fields, dependent_fields = primary_and_dependent_fields(schema)  # Generating list of primary and dependent fields
     doc = {}
     doc.update(generate_primary_fields(primary_fields))  # generating primary field data first
     doc.update(generate_dependent_fields(dependent_fields, doc))

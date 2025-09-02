@@ -76,13 +76,20 @@ def gauss_int(mu=0, sigma=1):
     else:
         return n
 
+def user_or_email(name, t="user"):
+    name = name.replace(" ", "").lower()
+    name = name + str(secrets.randbelow(10) + 1)
+    if t == "user":
+        return name
+    elif t == "email":
+        return name + "@" + secrets.choice(["outlook.com", "gmail.com", "yahoo.com"])
 
 # "Flyweight","Bantamweight","Featherweight","Lightweight","Welterweight","Middleweight","Light Heavyweight","Heavyweight"
 datatype_map = {
     'name': fake.name,
     'date': generate_date,
     "uuid": fake.uuid4,
-    'email': fake.email,
+    'email': user_or_email,
     'ipv4': fake.ipv4,
     'ipv6': fake.ipv6,
     'phone number': fake.phone_number,
@@ -128,13 +135,7 @@ def data_gen(datatype, kwargs=None):
         return func(**kwargs)
 
 
-def user_or_email(name, t="user"):
-    name = name.replace(" ", "").lower()
-    name = name + str(secrets.randbelow(10) + 1)
-    if t == "user":
-        return name
-    elif t == "email":
-        return name + "@" + secrets.choice(["outlook.com", "gmail.com", "yahoo.com"])
+
 
 
 def primary_and_dependent_fields(schema):
@@ -196,6 +197,25 @@ def generate_dependent_fields(dependent_fields, doc):
                     params = dependencies[category_value]
                     document[field_name] = data_gen(datatype, params)
                     generated_docs_so_far.update(document)
+        elif "textual" in dependencies:
+            dependencies = field_spec["dependencies"].copy()
+
+            source_field = dependencies.pop("textual")
+
+            parameters = dependencies.pop("parameters")
+            new_vals = []
+            for value in parameters.values():
+                if value == source_field:
+                    new_vals.append(generated_docs_so_far[value])
+                else:
+                    new_vals.append(value)
+            #param_vals = list(parameters.values())
+            new_params = {}
+            for i in range(len(new_vals)):
+                new_params[list(parameters.keys())[i]] = new_vals[i]
+            document[field_name] = data_gen(datatype, new_params)
+            print(new_params,datatype)
+
         elif "numerical" in dependencies:
             dependencies = field_spec["dependencies"].copy()
             source_field_names, formula = dependencies.pop("numerical"), dependencies[

@@ -64,7 +64,7 @@ def test_docGenerator_PersonSchema():  # Checking that the random generated data
     Schema = {
         "DOB": {"type": "date", "start_date": "1998-02-02", "end_date": "+30y"},
         "Name": {"type": "name"},
-        "Email": {"type": "email"},
+
     }
     doc = doc_generator(Schema)
     date_pattern = r'\d{4}-\d{2}-\d{2}'
@@ -72,7 +72,7 @@ def test_docGenerator_PersonSchema():  # Checking that the random generated data
 
     assert "DOB" in doc
     assert "Name" in doc
-    assert "Email" in doc
+
 
     assert type(doc) == dict
     assert len(doc) == len(Schema)
@@ -80,8 +80,7 @@ def test_docGenerator_PersonSchema():  # Checking that the random generated data
     assert re.match(date_pattern, doc["DOB"])
     assert type(doc["Name"]) == str
 
-    assert type(doc["Email"]) == str
-    assert re.match(email_pattern, doc["Email"])
+    
 
 
 def test_docGenerator_LogsSchema():

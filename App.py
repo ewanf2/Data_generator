@@ -10,7 +10,7 @@ from werkzeug.exceptions import BadRequest
 from waitress import serve
 import json
 fake = Faker()
-from dfunctions import data_gen, doc_generator, user_or_email, http_status, get_date, datatype_map
+from functions import data_gen, doc_generator, user_or_email, http_status, get_date, datatype_map
 #test
 
 

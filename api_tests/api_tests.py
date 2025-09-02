@@ -19,7 +19,7 @@ def test_uploadSchema(api_request_context: APIRequestContext):
     Schema = {"Example":{
         "DOB": {"type":"date"},
         "Name": {"type":"name"},
-        
+
     }
     }
     new_schema = api_request_context.post("/Schemas",data=Schema)

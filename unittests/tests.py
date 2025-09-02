@@ -4,7 +4,7 @@ import os
 # Add the project root to the import path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from dfunctions import data_gen, doc_generator, user_or_email, http_status, get_date, datatype_map, \
+from functions import data_gen, doc_generator, user_or_email, http_status, get_date, datatype_map, \
     primary_and_dependent_fields, generate_primary_fields, generate_dependent_fields, rand_skew, gauss_int
 import re
 

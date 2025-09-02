@@ -80,7 +80,7 @@ def test_docGenerator_PersonSchema():  # Checking that the random generated data
     assert re.match(date_pattern, doc["DOB"])
     assert type(doc["Name"]) == str
 
-    
+
 
 
 def test_docGenerator_LogsSchema():

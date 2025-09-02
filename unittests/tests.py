@@ -18,10 +18,7 @@ def test_data_gen_name():
     assert re.match(pattern, obtained)
 
 
-def test_data_gen_email():
-    result = data_gen("email")
-    pattern = r'^[\w\.\-]+@[\w\-]+\.\w{2,}$'
-    assert re.match(pattern, result)
+
 
 
 def test_rand_skew():

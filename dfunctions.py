@@ -76,6 +76,7 @@ def gauss_int(mu=0, sigma=1):
     else:
         return n
 
+
 def user_or_email(name, t="user"):
     name = name.replace(" ", "").lower()
     name = name + str(secrets.randbelow(10) + 1)
@@ -83,6 +84,7 @@ def user_or_email(name, t="user"):
         return name
     elif t == "email":
         return name + "@" + secrets.choice(["outlook.com", "gmail.com", "yahoo.com"])
+
 
 # "Flyweight","Bantamweight","Featherweight","Lightweight","Welterweight","Middleweight","Light Heavyweight","Heavyweight"
 datatype_map = {
@@ -135,9 +137,6 @@ def data_gen(datatype, kwargs=None):
         return func(**kwargs)
 
 
-
-
-
 def primary_and_dependent_fields(schema):
     primary_fields, dependent_fields = {}, {}
     for (field_name,
@@ -163,37 +162,27 @@ def generate_dependent_fields(dependent_fields, doc):
     document = {}
     generated_docs_so_far = doc.copy()
     dependent_fields = dependent_fields.copy()
-    #print(generated_docs_so_far)
+    # print(generated_docs_so_far)
     for (field_name, field_spec) in dependent_fields.items():  # generating data for all the dependent fields
-        dependencies = field_spec["dependencies"]
-        # print(dependencies)
-        datatype = field_spec["type"]
+        dependencies, datatype = field_spec["dependencies"], field_spec["type"]
         if "categorical" in dependencies:
-
             dependencies = field_spec["dependencies"].copy()
             source_field_names = dependencies.pop("categorical")
-
             match source_field_names:
                 case list():  # more than one field categorical dependency
-                    # print(f"source_field_names: {source_field_names}")
 
                     sources = {i: generated_docs_so_far[i] for i in
                                source_field_names}  # the other fields that this field depends on
                     sources_values = list(sources.values())
-                    # print(sources_values)
                     params = dependencies
-                    # print(params)
                     for value in sources_values:
                         params = params[value]
-                        # print(params)
-                    # print(params)
+
                     document[field_name] = data_gen(datatype, params)
                     generated_docs_so_far.update(document)
                 case str():  # where the source field dependencies is only one field
-
-                    # print(f"source_field_name: {source_field_names}")
                     category_value = doc[source_field_names]
-                    # print(f" category_value: {category_value}")
+
                     params = dependencies[category_value]
                     document[field_name] = data_gen(datatype, params)
                     generated_docs_so_far.update(document)
@@ -203,18 +192,10 @@ def generate_dependent_fields(dependent_fields, doc):
             source_field = dependencies.pop("textual")
 
             parameters = dependencies.pop("parameters")
-            new_vals = []
-            for value in parameters.values():
-                if value == source_field:
-                    new_vals.append(generated_docs_so_far[value])
-                else:
-                    new_vals.append(value)
-            #param_vals = list(parameters.values())
-            new_params = {}
-            for i in range(len(new_vals)):
-                new_params[list(parameters.keys())[i]] = new_vals[i]
+            new_vals = [generated_docs_so_far[value] if value == source_field else value for value in parameters.values()]
+            new_params = {k: v for k, v in zip(parameters.keys(), new_vals)}
             document[field_name] = data_gen(datatype, new_params)
-            print(new_params,datatype)
+
 
         elif "numerical" in dependencies:
             dependencies = field_spec["dependencies"].copy()
@@ -222,9 +203,9 @@ def generate_dependent_fields(dependent_fields, doc):
                 "formula"]  # the field name we have a numerical dependency on
             for i in source_field_names:
                 source_field_value = generated_docs_so_far  # the value of that field in this document
-                # print(f" source field: {i} | source field val: {source_field_value}")
+
                 formula = formula.replace(i, str(generated_docs_so_far[i]))
-            # print(f" formula: {formula} = {eval(formula)}")
+
 
             document[field_name] = eval(formula)
             generated_docs_so_far.update(document)
@@ -232,7 +213,8 @@ def generate_dependent_fields(dependent_fields, doc):
 
 
 def doc_generator(schema):  # new doc_generator function, less hardcoded
-    primary_fields, dependent_fields = primary_and_dependent_fields(schema)  # Generating list of primary and dependent fields
+    primary_fields, dependent_fields = primary_and_dependent_fields(
+        schema)  # Generating list of primary and dependent fields
     doc = {}
     doc.update(generate_primary_fields(primary_fields))  # generating primary field data first
     doc.update(generate_dependent_fields(dependent_fields, doc))

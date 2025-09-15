@@ -1,9 +1,10 @@
+import math
 import random
 from datetime import datetime
 
 import re
 from faker import Faker
-import numexpr
+
 import secrets
 
 from scipy.stats import skewnorm
@@ -69,12 +70,11 @@ def generate_date(start_date="-25y", end_date="+0d"):
     return str(fake.date_between(start_date=start, end_date=end))
 
 
-def gauss_int(mu=0, sigma=1):
-    n = round(random.gauss(mu, sigma))
-    if n < 0:
-        return 0
-    else:
-        return n
+def gauss_int(mu=5, sigma=1):
+    while True:
+        n = round(random.gauss(mu, sigma))
+        if n >= 0:
+            return n
 
 
 def user_or_email(name, t="user"):
@@ -170,9 +170,7 @@ def generate_dependent_fields(dependent_fields, doc):
             source_field_names = dependencies.pop("categorical")
             match source_field_names:
                 case list():  # more than one field categorical dependency
-
-                    sources = {i: generated_docs_so_far[i] for i in
-                               source_field_names}  # the other fields that this field depends on
+                    sources = {i: generated_docs_so_far[i] for i in source_field_names}  # the other fields that this field depends on
                     sources_values = list(sources.values())
                     params = dependencies
                     for value in sources_values:

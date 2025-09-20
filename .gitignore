@@ -10,3 +10,5 @@ env/
 # Ignore IDE configs
 .idea/
 testing.py
+*.iml
+desktop.ini

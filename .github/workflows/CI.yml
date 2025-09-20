@@ -3,13 +3,6 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Git checkout
-        run: echo Checking out the repository!
-
 
   unit_test:
     runs-on: ubuntu-latest
@@ -29,18 +22,32 @@ jobs:
       - name: Run unit tests
         run: pytest unittests/tests.py
 
+      - name: Save coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: coverage.xml
 
   static_analysis:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: SonarSource/sonarcloud-github-action@v2.1.0
-        name: Static analysis with sonar cloud
 
+      - name: Download coverage
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage-report
+          path: .
+
+      - uses: SonarSource/sonarcloud-github-action@v2.1.0
+        name: Static analysis with SonarCloud
         with:
           args: >
             -Dsonar.projectKey=flaskproj
             -Dsonar.organization=ewanf
+            -Dsonar.coverage.exclusions=unittests/**,api_tests/**,App.py
+            -Dsonar.python.coverage.reportPaths=coverage.xml
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONARCLOUD_ACCESS}}
+          SONAR_TOKEN: ${{ secrets.SONARCLOUD_ACCESS }}
+

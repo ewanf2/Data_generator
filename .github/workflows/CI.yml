@@ -36,10 +36,10 @@ jobs:
       - uses: SonarSource/sonarcloud-github-action@v2.1.0
         name: Static analysis with sonar cloud
 
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONARCLOUD_ACCESS}}
         with:
           args: >
             -Dsonar.projectKey=flaskproj
             -Dsonar.organization=ewanf
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONARCLOUD_ACCESS}}

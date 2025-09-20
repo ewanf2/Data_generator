@@ -1,10 +1,15 @@
-FROM python
+FROM python:3.11-slim
 WORKDIR /app
-COPY App.py /app
+
 COPY requirements.txt /app
-COPY entrypoint.sh /entrypoint.sh
-COPY functions.py /app
 RUN pip install --no-cache-dir -r requirements.txt
+
+
+COPY App.py functions.py ./
+COPY entrypoint.sh /entrypoint.sh
+
+
+RUN chmod +x /entrypoint.sh
 
 
 

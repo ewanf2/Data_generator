@@ -39,7 +39,7 @@ jobs:
 
         with:
           args: >
-            -Dsonar.projectKey=ewanf_flaskproj
+            -Dsonar.projectKey=flaskproj
             -Dsonar.organization=ewanf
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}

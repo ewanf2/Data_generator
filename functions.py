@@ -71,6 +71,8 @@ def generate_date(start_date="-25y", end_date="+0d"):
 
 
 def gauss_int(mu=5, sigma=1):
+    if sigma <= 0:
+        return max(0, round(mu))
     while True:
         n = round(random.gauss(mu, sigma))
         if n >= 0:

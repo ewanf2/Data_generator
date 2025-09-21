@@ -28,7 +28,7 @@ def test_rand_skew():
 
 def test_gauss_int():
     result = gauss_int()
-    assert type(result) == str
+    assert type(result) == int
     res2 = gauss_int(-200, 0)
     assert res2 == 0
 

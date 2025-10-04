@@ -108,7 +108,7 @@ datatype_map = {
     "HTTP method": fake.http_method,
     "hostname": fake.hostname,
     "HTTP code": fake.http_status_code,
-    "sex": lambda a, b: random.choices(["male", "female"], weights=[a, b])[0],
+    "sex": lambda m, f: random.choices(["male", "female"], weights=[m, f])[0],
     "stance": lambda: random.choices(["Southpaw", "Conventional", "Switch"], [1, 3, 0.7])[0],
     "randfloat": random.uniform,
     "random normal": random.gauss,
@@ -165,9 +165,9 @@ def generate_dependent_fields(dependent_fields, doc):
     # print(generated_docs_so_far)
     for (field_name, field_spec) in dependent_fields.items():  # generating data for all the dependent fields
         dependencies, datatype = field_spec["dependencies"], field_spec["type"]
-        if "categorical" in dependencies:
+        if "conditional" in dependencies:
             dependencies = field_spec["dependencies"].copy()
-            source_field_names = dependencies.pop("categorical")
+            source_field_names = dependencies.pop("conditional")
             match source_field_names:
                 case list():  # more than one field categorical dependency
                     sources = {i: generated_docs_so_far[i] for i in source_field_names}  # the other fields that this field depends on
@@ -184,10 +184,10 @@ def generate_dependent_fields(dependent_fields, doc):
                     params = dependencies[category_value]
                     document[field_name] = data_gen(datatype, params)
                     generated_docs_so_far.update(document)
-        elif "textual" in dependencies:
+        elif "reference" in dependencies:
             dependencies = field_spec["dependencies"].copy()
 
-            source_field = dependencies.pop("textual")
+            source_field = dependencies.pop("reference")
 
             parameters = dependencies.pop("parameters")
             new_vals = [generated_docs_so_far[value] if value == source_field else value for value in parameters.values()]
@@ -195,9 +195,9 @@ def generate_dependent_fields(dependent_fields, doc):
             document[field_name] = data_gen(datatype, new_params)
 
 
-        elif "numerical" in dependencies:
+        elif "formula" in dependencies:
             dependencies = field_spec["dependencies"].copy()
-            source_field_names, formula = dependencies.pop("numerical"), dependencies[
+            source_field_names, formula = dependencies.pop("formula"), dependencies[
                 "formula"]  # the field name we have a numerical dependency on
             for i in source_field_names:
                 source_field_value = generated_docs_so_far  # the value of that field in this document

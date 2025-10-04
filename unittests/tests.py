@@ -146,7 +146,7 @@ def test_primary_and_dependent_fields():
 
 def test_generate_primary_fields():
     test_schema = {"Name": {"type": "name"},
-                   "sex": {"type": "sex", "parameters": {"a": 2, "b": 1}},
+                   "sex": {"type": "sex", "parameters": {"m": 2, "f": 1}},
                    "age": {"type": "random int", "parameters": {"a": 19, "b": 100}},
                    "tallness": {"type": "gauss int",
                                 "dependencies": {"categorical": "sex", "male": {"mu": 179, "sigma": 10},
@@ -161,7 +161,7 @@ def test_generate_primary_fields():
 
 def test_generate_dependent_fields():
     test_schema = {"Name": {"type": "name"},
-                     "sex": {"type": "sex", "parameters": {"a": 1, "b": 1}},
+                     "sex": {"type": "sex", "parameters": {"m": 1, "f": 1}},
                      "age": {"type": "random int", "parameters": {"a": 19, "b": 100}},
                      "tallness": {"type": "gauss int",
                                   "dependencies": {"categorical": "sex",

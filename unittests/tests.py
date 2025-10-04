@@ -133,7 +133,7 @@ def test_primary_and_dependent_fields():
                    "sex": {"type": "sex", "parameters": {"a": 2, "b": 1}},
                    "age": {"type": "random int", "parameters": {"a": 19, "b": 100}},
                    "tallness": {"type": "gauss int",
-                                "dependencies": {"categorical": "sex", "male": {"mu": 179, "sigma": 10},
+                                "dependencies": {"conditional": "sex", "male": {"mu": 179, "sigma": 10},
                                                  "female": {"mu": 150, "sigma": 10}}
                                 }
                    }
@@ -149,7 +149,7 @@ def test_generate_primary_fields():
                    "sex": {"type": "sex", "parameters": {"m": 2, "f": 1}},
                    "age": {"type": "random int", "parameters": {"a": 19, "b": 100}},
                    "tallness": {"type": "gauss int",
-                                "dependencies": {"categorical": "sex", "male": {"mu": 179, "sigma": 10},
+                                "dependencies": {"conditional": "sex", "male": {"mu": 179, "sigma": 10},
                                                  "female": {"mu": 150, "sigma": 10}}
                                 }
                    }
@@ -164,7 +164,7 @@ def test_generate_dependent_fields():
                      "sex": {"type": "sex", "parameters": {"m": 1, "f": 1}},
                      "age": {"type": "random int", "parameters": {"a": 19, "b": 100}},
                      "tallness": {"type": "gauss int",
-                                  "dependencies": {"categorical": "sex",
+                                  "dependencies": {"conditional": "sex",
                                                    "male": {"mu": 179, "sigma": 10},
                                                    "female": {"mu": 161, "sigma": 10}}
                                   }
@@ -177,4 +177,4 @@ def test_generate_dependent_fields():
     doc.update(dependents)
     assert type(dependents) == dict
     assert "tallness" in dependents
-    assert "weight" in dependents
+

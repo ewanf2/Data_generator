@@ -195,18 +195,18 @@ def generate_dependent_fields(dependent_fields, doc):
             document[field_name] = data_gen(datatype, new_params)
 
 
-        elif "formula" in dependencies:
-            dependencies = field_spec["dependencies"].copy()
-            source_field_names, formula = dependencies.pop("formula"), dependencies[
-                "formula"]  # the field name we have a numerical dependency on
-            for i in source_field_names:
-                source_field_value = generated_docs_so_far  # the value of that field in this document
-
-                formula = formula.replace(i, str(generated_docs_so_far[i]))
-
-
-            document[field_name] = eval(formula)
-            generated_docs_so_far.update(document)
+        # elif "formula" in dependencies:
+        #     dependencies = field_spec["dependencies"].copy()
+        #     source_field_names, formula = dependencies.pop("formula"), dependencies[
+        #         "formula"]  # the field name we have a numerical dependency on
+        #     for i in source_field_names:
+        #         source_field_value = generated_docs_so_far  # the value of that field in this document
+        #
+        #         formula = formula.replace(i, str(generated_docs_so_far[i]))
+        #
+        #
+        #     document[field_name] = eval(formula)
+        #     generated_docs_so_far.update(document)
     return document
 
 

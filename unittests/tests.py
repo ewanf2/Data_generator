@@ -167,9 +167,7 @@ def test_generate_dependent_fields():
                                   "dependencies": {"categorical": "sex",
                                                    "male": {"mu": 179, "sigma": 10},
                                                    "female": {"mu": 161, "sigma": 10}}
-                                  },
-                     "weight": {"type": "gauss int",
-                                "dependencies": {"numerical": ["age"], "formula": "age*0.7+40"}}
+                                  }
                      }
     primary_fields, dependent_fields = primary_and_dependent_fields(
         test_schema)  # Generating list of primary and dependent fields

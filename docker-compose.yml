@@ -3,6 +3,12 @@ services:
     #image: ewanf2/flask-app
     build: . #testing on local pc
     container_name: data-gen
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5050/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
     ports:
       - "5050:80"
     volumes:

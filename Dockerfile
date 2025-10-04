@@ -1,19 +1,18 @@
 FROM python:3.11-slim
+
 WORKDIR /app
 
-COPY requirements.txt /app
+# Copy and install dependencies
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-
+# Copy application files
 COPY App.py functions.py ./
-COPY entrypoint.sh /entrypoint.sh
 
+# Create schemas directory and initialize empty schemas file
+RUN mkdir -p /app/schemas && \
+    echo '{}' > /app/schemas/schemas.json
 
-RUN chmod +x /entrypoint.sh
-
-
-
-EXPOSE 80
-
-RUN chmod +x /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+# Expose application port
+EXPOSE 5050
+CMD ["waitress-serve", "--listen=0.0.0.0:80", "App:App"]

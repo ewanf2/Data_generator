@@ -1,7 +1,7 @@
 import random
 from datetime import datetime
 import os
-
+from flask_cors import CORS
 import pandas as pd
 from flask import Flask, request
 import re
@@ -20,7 +20,7 @@ from functions import data_gen, doc_generator, user_or_email, http_status, get_d
 
 
 App = Flask(__name__)
-
+CORS(App)
 list_of_schema = {
     "Logs": {
         "Destination IP": {"type":"ipv4"},

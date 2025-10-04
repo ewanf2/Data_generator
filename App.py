@@ -29,7 +29,7 @@ list_of_schema = {
     "Person": {
         "DOB": {"type":"date"},
         "Name": {"type":"name"},
-        "Email": {"type":"email"},
+
     }
 
 }
@@ -44,7 +44,8 @@ def save_schemas(schema):
     with open(schemas_path, "w") as f:
         json.dump(data, f)
     print("Schemas saved to " + schemas_path)
-save_schemas(list_of_schema)
+
+
 def load_schemas():
     with open(schemas_path,"r") as f:
         x = json.load(f)
@@ -53,7 +54,10 @@ def load_schemas():
 #list_of_schema = load_schemas()
 
 
-
+with App.app_context():
+    schemas = load_schemas()
+    if not schemas:  # Only save if file is empty/missing
+        save_schemas(list_of_schema)
 
 @App.route("/")
 def index():
@@ -163,6 +167,19 @@ def Document_generator(schema_title):
         docs = pd.DataFrame([doc_generator(schema) for i in range(no_of_docs)]).to_csv()
     msg = (f"{no_of_docs} {filetype} have been generated", 201)
     return docs, 201
+
+
+@App.route("/health")
+def health_check():
+    """Health check endpoint for Docker/orchestration."""
+    try:
+        # Check if schemas file is accessible
+        with open(schemas_path, "r") as f:
+            json.load(f)
+
+        return {"status": "healthy", "service": "data-generator"}, 200
+    except Exception as e:
+        return {"status": "unhealthy", "error": str(e)}, 503
 
 if __name__ == "__main__":
     App.run(host='0.0.0.0', port=5100)

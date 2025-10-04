@@ -1,7 +1,7 @@
 services:
   data-gen:
-    image: ewanf2/flask-app
-    #build: . #testing on local pc
+    #image: ewanf2/flask-app
+    build: . #testing on local pc
     container_name: data-gen
     ports:
       - "5050:80"

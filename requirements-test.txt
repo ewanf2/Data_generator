@@ -1,4 +1,4 @@
 pytest
 playwright
 pytest-playwright
-pytest-cov re
+pytest-cov

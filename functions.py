@@ -170,7 +170,8 @@ def generate_dependent_fields(dependent_fields, doc):
             source_field_names = dependencies.pop("conditional")
             match source_field_names:
                 case list():  # more than one field categorical dependency
-                    sources = {i: generated_docs_so_far[i] for i in source_field_names}  # the other fields that this field depends on
+                    sources = {i: generated_docs_so_far[i] for i in
+                               source_field_names}  # the other fields that this field depends on
                     sources_values = list(sources.values())
                     params = dependencies
                     for value in sources_values:
@@ -190,10 +191,10 @@ def generate_dependent_fields(dependent_fields, doc):
             source_field = dependencies.pop("reference")
 
             parameters = dependencies.pop("parameters")
-            new_vals = [generated_docs_so_far[value] if value == source_field else value for value in parameters.values()]
+            new_vals = [generated_docs_so_far[value] if value == source_field else value for value in
+                        parameters.values()]
             new_params = {k: v for k, v in zip(parameters.keys(), new_vals)}
             document[field_name] = data_gen(datatype, new_params)
-
 
         # elif "formula" in dependencies:
         #     dependencies = field_spec["dependencies"].copy()
@@ -217,3 +218,34 @@ def doc_generator(schema):  # new doc_generator function, less hardcoded
     doc.update(generate_primary_fields(primary_fields))  # generating primary field data first
     doc.update(generate_dependent_fields(dependent_fields, doc))
     return doc
+
+
+def malform_data(x):
+    if type(x) == str:
+        malformations = [lambda s: s.replace("@", " "),
+                         lambda s: s.replace("@", ""),
+                         lambda s: s.replace(".", " "),
+                         lambda s: s.replace("A", "!"),
+                         lambda s: " ",
+                         lambda s: s.replace(".", ""),
+                         lambda s: s.replace(s[random.randint(0, len(s)-1)],random.choice(["!","£","$","%","%","^","&"," ","?"]))
+                         ]
+        return random.choice(malformations)(x)
+    elif type(x)== float or (type(x) == int):
+        malformations = [lambda n: 0,
+                         lambda n: n*1000,
+                         lambda n: n/1000,
+                         lambda n: -n,
+                         lambda n: -n/1000,
+                         lambda n: int(n) if isinstance(n, float) else n
+                         ]
+        return random.choice(malformations)(x)
+
+def document_malformer(document, malform_rate=0.4):
+    new_doc = {}
+    for field_name, data in document.items():
+        if random.random() < malform_rate:
+            new_doc[field_name] = malform_data(data)
+        else:
+            new_doc[field_name] = data
+    return new_doc

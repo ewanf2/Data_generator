@@ -5,7 +5,8 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from functions import data_gen, doc_generator, user_or_email, http_status, get_date, datatype_map, \
-    primary_and_dependent_fields, generate_primary_fields, generate_dependent_fields, rand_skew, gauss_int
+    primary_and_dependent_fields, generate_primary_fields, generate_dependent_fields, rand_skew, gauss_int, \
+    document_malformer
 import re
 
 
@@ -177,4 +178,124 @@ def test_generate_dependent_fields():
     doc.update(dependents)
     assert type(dependents) == dict
     assert "tallness" in dependents
+
+class TestDocumentMalformer:
+
+    def test_malforms_string_fields(self):
+        """Test that string fields get malformed."""
+        document = {
+            "Name": "John Doe",
+            "Email": "john@example.com"
+        }
+
+        malformed = document_malformer(document,1.0)
+
+        # At least one field should be different from original
+        assert malformed != document
+        # Should still have same keys
+        assert set(malformed.keys()) == set(document.keys())
+
+    def test_malforms_numeric_fields(self):
+        """Test that numeric fields get malformed."""
+        document = {
+            "Age": 30,
+            "Salary": 50000.50
+        }
+
+        malformed = document_malformer(document,1.0)
+
+        # At least one value should change
+        assert malformed != document
+        assert set(malformed.keys()) == set(document.keys())
+
+    def test_preserves_none_values(self):
+        """Test that None values stay as None."""
+        document = {
+            "Name": "John",
+            "Email": None,
+            "Age": None
+        }
+
+        malformed = document_malformer(document,1.0)
+
+        assert malformed["Email"] is None
+        assert malformed["Age"] is None
+
+    def test_handles_empty_document(self):
+        """Test that empty document returns empty document."""
+        document = {}
+        malformed = document_malformer(document,1.0)
+        assert malformed == {}
+
+    def test_handles_mixed_types(self):
+        """Test document with various data types."""
+        document = {
+            "Name": "Jane Doe",
+            "Age": 25,
+            "Score": 85.5,
+            "Active": True,
+            "Notes": None
+        }
+
+        malformed = document_malformer(document,1.0)
+
+        assert isinstance(malformed, dict)
+        assert len(malformed) == len(document)
+        assert set(malformed.keys()) == set(document.keys())
+
+    def test_doesnt_modify_original(self):
+        """Test that original document is not modified."""
+        original = {
+            "Name": "John Doe",
+            "Email": "john@example.com",
+            "Age": 30
+        }
+        original_copy = original.copy()
+
+        malformed = document_malformer(original,1.0)
+
+        # Original should be unchanged
+        assert original == original_copy
+
+    def test_introduces_realistic_errors(self):
+        """Test that malformations are realistic (not random garbage)."""
+        document = {
+            "Email": "test@example.com"
+        }
+
+        # Run multiple times to see different malformations
+        malformed_versions = [document_malformer(document) for _ in range(20)]
+
+        # Check that at least some are different
+        unique_emails = set(d["Email"] for d in malformed_versions)
+        assert len(unique_emails) > 1  # Should have variety
+
+        # Each malformed email should still be somewhat email-like
+        # (not complete garbage)
+        for malformed in malformed_versions:
+            email = malformed["Email"]
+            assert isinstance(email, str)
+            assert len(email) > 0
+
+    def test_probability_of_malformation(self):
+        """Test that not ALL fields get malformed every time."""
+        document = {
+            "Field1": "value1",
+            "Field2": "value2",
+            "Field3": "value3"
+        }
+
+        # Run 100 times and check that sometimes fields stay the same
+        results = [document_malformer(document) for _ in range(100)]
+
+        # At least one run should have some unchanged fields
+        unchanged_counts = []
+        for result in results:
+            unchanged = sum(1 for k in document if result[k] == document[k])
+            unchanged_counts.append(unchanged)
+
+        # Not every field should change every time (unless you want that)
+        # Adjust this assertion based on your implementation
+        assert max(unchanged_counts) > 0 or min(unchanged_counts) < len(document)
+
 

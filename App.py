@@ -10,14 +10,7 @@ from werkzeug.exceptions import BadRequest
 from waitress import serve
 import json
 fake = Faker()
-from functions import data_gen, doc_generator, user_or_email, http_status, get_date, datatype_map
-
-
-
-
-
-
-
+from functions import data_gen, doc_generator, user_or_email, http_status, get_date, datatype_map, document_malformer
 
 App = Flask(__name__)
 CORS(App)
@@ -34,7 +27,7 @@ list_of_schema = {
 
 }
 
-schemas_path = "/app/schemas/schemas.json"
+schemas_path = "./schemas/schemas.json"
 
 
 def save_schemas(schema):
@@ -142,6 +135,7 @@ def view(schema_title=None):
 @App.get("/Schemas/<schema_title>/data")
 def Document_generator(schema_title):
     no_of_docs = request.args.get("no", 1)
+    mal = request.args.get("malf", False)
     filetype = request.headers.get('Accept', 'application/json')
     list_of_schema = load_schemas()
     if schema_title not in list_of_schema.keys():
@@ -158,13 +152,23 @@ def Document_generator(schema_title):
 
     schema = list_of_schema[schema_title]
     if filetype == "application/ndjson":
-        docs = [json.dumps(doc_generator(schema) )for i in range(no_of_docs)]
+        if mal == True: #producing malformed data
+            docs = [json.dumps(document_malformer(doc_generator(schema)) )for i in range(no_of_docs)]
+        else:
+            docs = [json.dumps(document_malformer(doc_generator(schema), mal))for i in range(no_of_docs)]
         docs = "\n".join(docs)
     elif filetype == "application/json" or filetype == "*/*":
-        docs = [doc_generator(schema) for i in range(no_of_docs)]
+        if mal == True:  # producing malformed data
+            docs = [document_malformer(doc_generator(schema)) for i in range(no_of_docs)]
+        else:
+            docs = [doc_generator(schema) for i in range(no_of_docs)]
+
 
     elif filetype == "text/csv":
-        docs = pd.DataFrame([doc_generator(schema) for i in range(no_of_docs)]).to_csv()
+        if mal == True:
+            docs = pd.DataFrame([document_malformer(doc_generator(schema) )for i in range(no_of_docs)]).to_csv()
+        else:
+            docs = pd.DataFrame([doc_generator(schema) for i in range(no_of_docs)]).to_csv()
     msg = (f"{no_of_docs} {filetype} have been generated", 201)
     return docs, 201
 
@@ -177,10 +181,10 @@ def health_check():
         with open(schemas_path, "r") as f:
             json.load(f)
 
-        return {"status": "healthy", "service": "data-generator"}, 200
+        return {"status": "healthy"}, 200
     except Exception as e:
-        return {"status": "unhealthy", "error": str(e)}, 503
+        return {"status": "unhealthy"}, 503
 
 if __name__ == "__main__":
-    App.run(host='0.0.0.0', port=5100)
+    App.run(host='0.0.0.0', port=5050)
 

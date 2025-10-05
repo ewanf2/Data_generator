@@ -1,0 +1,1 @@
+{"Logs": {"Destination IP": {"type": "ipv4"}, "Source IP": {"type": "ipv4"}}, "Person": {"DOB": {"type": "date"}, "Name": {"type": "name"}}}

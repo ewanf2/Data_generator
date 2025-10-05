@@ -68,7 +68,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
+      - name: List files for debugging
+        run: |
+          echo "=== Repository contents ==="
+          ls -la
+          echo "=== Python files ==="
+          find . -name "*.py" -not -path "./.venv/*" -not -path "*/__pycache__/*"
       - uses: SonarSource/sonarcloud-github-action@v2.1.0
         name: Static analysis (without coverage)
         with:

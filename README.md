@@ -10,7 +10,7 @@ A flexible Python tool for generating realistic synthetic data with complex depe
 - [Field Types](#field-types)
 - [Dependencies](#dependencies)
 
-yh buddy
+testing init
 ## Installation
 
 ### Using Docker Compose

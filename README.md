@@ -1,4 +1,4 @@
-# Data Generator
+# Data Generator App
 A flexible Python tool for generating realistic synthetic data with complex dependencies between fields.
 
 ### Table of Contents

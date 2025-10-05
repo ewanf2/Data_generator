@@ -79,6 +79,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONARCLOUD_ACCESS }}
+      - name: Add SonarCloud link to summary
+        run: |
+          echo "### SonarCloud Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "View full report: https://sonarcloud.io/dashboard?id=flaskproj" >> $GITHUB_STEP_SUMMARY
 
   integration_tests:
     if: github.event_name == 'push'

@@ -17,7 +17,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt requirements-test.txt
+          pip install -r requirements.txt -r requirements-test.txt
           
       - name: Run unit tests
         run: pytest --cov=functions --cov-report=xml:coverage.xml unittests/tests.py
@@ -74,7 +74,7 @@ jobs:
         run: pytest ./api_tests/api_tests.py
 
       - name: Tear down container
-        run: docker-compose down -v
+        run: docker compose down -v
 
 
 

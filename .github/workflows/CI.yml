@@ -68,7 +68,7 @@ jobs:
           pip install -r requirements-test.txt
 
       - name: Run flask-app
-        run: docker-compose up -d --build
+        run: docker compose up -d --build
 
       - name: Run api tests
         run: pytest ./api_tests/api_tests.py

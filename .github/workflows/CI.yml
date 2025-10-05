@@ -1,28 +1,37 @@
 on:
   push:
-    branches: [ "main" ]
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-
   unit_test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.13'
-          
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt -r requirements-test.txt
-          
-      - name: Run unit tests
-        run: pytest --cov=functions --cov-report=xml:coverage.xml unittests/tests.py
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
 
-      - name: Save coverage
+      # Only run coverage on push to main
+      - name: Run tests with coverage (main only)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: pytest --cov=functions --cov-report=xml:coverage.xml unittests/tests.py -v
+
+      # Run without coverage on PRs
+      - name: Run tests without coverage (PRs)
+        if: github.event_name == 'pull_request'
+        run: pytest unittests/tests.py -v
+
+      # Only upload coverage on main
+      - name: Upload coverage artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
@@ -33,15 +42,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
+      # Only download coverage on main
       - name: Download coverage
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/download-artifact@v4
         with:
           name: coverage-report
           path: .
 
+      # SonarCloud with coverage (main only)
       - uses: SonarSource/sonarcloud-github-action@v2.1.0
-        name: Static analysis with SonarCloud
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        name: Static analysis (Main with coverage)
         with:
           args: >
             -Dsonar.projectKey=flaskproj
@@ -49,13 +64,21 @@ jobs:
             -Dsonar.coverage.exclusions=unittests/**,api_tests/**,App.py
             -Dsonar.python.coverage.reportPaths=coverage.xml
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONARCLOUD_ACCESS }}
 
-      - name: Add SonarCloud link to summary
-        run: |
-          echo "### SonarCloud Analysis" >> $GITHUB_STEP_SUMMARY
-          echo "View full report: https://sonarcloud.io/dashboard?id=flaskproj" >> $GITHUB_STEP_SUMMARY
+      # SonarCloud without coverage (PRs)
+      - uses: SonarSource/sonarcloud-github-action@v2.1.0
+        if: github.event_name == 'pull_request'
+        name: Static analysis (PR without coverage)
+        with:
+          args: >
+            -Dsonar.projectKey=flaskproj
+            -Dsonar.organization=ewanf
+            -Dsonar.coverage.exclusions=unittests/**,api_tests/**,App.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONARCLOUD_ACCESS }}
 
   Integration_tests:
     runs-on: ubuntu-latest
@@ -78,8 +101,6 @@ jobs:
       - name: Run api tests
         run: pytest ./api_tests/api_tests.py
 
-      - name: Tear down container
-        run: docker compose down -v
 
 
 

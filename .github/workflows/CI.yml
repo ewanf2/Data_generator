@@ -72,6 +72,7 @@ jobs:
         run: |
           echo "=== Repository contents ==="
           ls -la
+          pwd
           echo "=== Python files ==="
           find . -name "*.py" -not -path "./.venv/*" -not -path "*/__pycache__/*"
       - uses: SonarSource/sonarcloud-github-action@v2.1.0

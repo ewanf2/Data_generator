@@ -1,0 +1,36 @@
+name: SonarCloud
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  static_analysis:
+    needs: unit_test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Download coverage
+
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: .
+
+      - uses: SonarSource/sonarcloud-github-action@v2.1.0
+        if: github.event_name == 'pull_request'
+        name: Static analysis with SonarCloud (PR)
+        with:
+          args: >
+            -Dsonar.projectKey=flaskproj
+            -Dsonar.organization=ewanf
+            -Dsonar.coverage.exclusions=unittests/**,api_tests/**,App.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONARCLOUD_ACCESS }}
+
+      - name: Add SonarCloud link to summary
+        run: |
+          echo "### SonarCloud Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "View full report: https://sonarcloud.io/dashboard?id=flaskproj" >> $GITHUB_STEP_SUMMARY

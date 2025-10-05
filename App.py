@@ -155,7 +155,7 @@ def Document_generator(schema_title):
         if mal == "True": #producing malformed data
             docs = [json.dumps(document_malformer(doc_generator(schema)) )for i in range(no_of_docs)]
         else:
-            docs = [json.dumps(document_malformer(doc_generator(schema), mal))for i in range(no_of_docs)]
+            docs = [json.dumps(doc_generator(schema)) for i in range(no_of_docs)]
         docs = "\n".join(docs)
     elif filetype == "application/json" or filetype == "*/*":
         if mal == "True":  # producing malformed data

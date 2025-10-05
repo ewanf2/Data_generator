@@ -135,7 +135,7 @@ def view(schema_title=None):
 @App.get("/Schemas/<schema_title>/data")
 def Document_generator(schema_title):
     no_of_docs = request.args.get("no", 1)
-    mal = request.args.get("malf", False)
+    mal = request.args.get("malf", "False")
     filetype = request.headers.get('Accept', 'application/json')
     list_of_schema = load_schemas()
     if schema_title not in list_of_schema.keys():
@@ -152,20 +152,20 @@ def Document_generator(schema_title):
 
     schema = list_of_schema[schema_title]
     if filetype == "application/ndjson":
-        if mal == True: #producing malformed data
+        if mal == "True": #producing malformed data
             docs = [json.dumps(document_malformer(doc_generator(schema)) )for i in range(no_of_docs)]
         else:
             docs = [json.dumps(document_malformer(doc_generator(schema), mal))for i in range(no_of_docs)]
         docs = "\n".join(docs)
     elif filetype == "application/json" or filetype == "*/*":
-        if mal == True:  # producing malformed data
+        if mal == "True":  # producing malformed data
             docs = [document_malformer(doc_generator(schema)) for i in range(no_of_docs)]
         else:
             docs = [doc_generator(schema) for i in range(no_of_docs)]
 
 
     elif filetype == "text/csv":
-        if mal == True:
+        if mal == "True":
             docs = pd.DataFrame([document_malformer(doc_generator(schema) )for i in range(no_of_docs)]).to_csv()
         else:
             docs = pd.DataFrame([doc_generator(schema) for i in range(no_of_docs)]).to_csv()

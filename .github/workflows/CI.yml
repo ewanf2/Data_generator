@@ -78,11 +78,12 @@ jobs:
       - uses: SonarSource/sonarcloud-github-action@v2.1.0
         name: Static analysis (without coverage)
         with:
+          projectBaseDir: ${{ github.workspace }}
           args: >
             -Dsonar.projectKey=flaskproj
             -Dsonar.organization=ewanf
             -Dsonar.coverage.exclusions=unittests/**,api_tests/**,App.py
-            -Dsonar.sources=/home/runner/work/Data_generator/Data_generator
+            -Dsonar.sources=.
             -Dsonar.qualitygate.wait=tr
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

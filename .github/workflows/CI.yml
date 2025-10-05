@@ -52,6 +52,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONARCLOUD_ACCESS }}
 
+      - name: Add SonarCloud link to summary
+        run: |
+          echo "### SonarCloud Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "View full report: https://sonarcloud.io/dashboard?id=your-project-key" >> $GITHUB_STEP_SUMMARY
+
   Integration_tests:
     runs-on: ubuntu-latest
     steps:

@@ -83,6 +83,7 @@ def email(name="default"):
         return fake.email()
     else:
         return name + "@" + secrets.choice(["outlook.com", "gmail.com", "yahoo.com"])
+
 def username(name="default"):
     if name == "default":
         return fake.username()
@@ -101,7 +102,6 @@ datatype_map = {
     'ipv6': fake.ipv6,
     'phone number': fake.phone_number,
     'address': fake.address,
-    'username': fake.user_name,
     'password': fake.password,
     'boolean': fake.boolean,
     'domain': fake.domain_name,

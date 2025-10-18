@@ -10,12 +10,11 @@ A flexible Python tool for generating realistic synthetic data with complex depe
 - [Field Types](#field-types)
 - [Dependencies](#dependencies)
 
-testing init
 ## Installation
 
 ### Using Docker Compose
 
-**Prerequisites:** Ensure Docker is installed on your system. Windows users must also have WSL2 installed for Docker compatibility.
+**Pre-requisites:** Ensure Docker is installed on your system. Windows users must also have WSL2 installed for Docker compatibility.
 ```bash
 # Clone the repository
 git clone https://github.com/ewanf2/Data_generator.git
@@ -32,6 +31,25 @@ docker-compose down
 
 # Stop the service and remove volumes
 docker-compose down -v
+```
+
+### Running without docker
+
+```
+# Clone the repository
+git clone https://github.com/ewanf2/Data_generator.git
+cd Data-generator
+
+# Activate a virtual environment
+python -m venv venv
+./venv/Scripts/activate
+
+# Install dependencies:
+pip install -r requirements.txt
+# Run the app
+flask run
+# To leave the virtual environment:
+deactivate
 ```
 Once running, Waitress will serve the Flask application. The API will be accessible at http://localhost:5050.
 
@@ -163,9 +181,8 @@ Defines how this field depends on other fields in the schema. See the Dependenci
   "type": "email",
   "dependencies": {
     "reference": "Name",
-    "parameters": {
-      "name": "Name",
-      "t": "email"
+    "parameters": { 
+    "name": "Name"
     }
   }
 }
@@ -185,7 +202,7 @@ Defines how this field depends on other fields in the schema. See the Dependenci
 
   - address → random address
 
-  - username → random username
+  - username → random username (or based on dependency if specified)
 
   - password → random password
 

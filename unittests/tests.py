@@ -4,9 +4,9 @@ import os
 # Add the project root to the import path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from functions import data_gen, doc_generator, user_or_email, http_status, get_date, datatype_map, \
+from functions import data_gen, doc_generator, http_status, get_date, datatype_map, \
     primary_and_dependent_fields, generate_primary_fields, generate_dependent_fields, rand_skew, gauss_int, \
-    document_malformer
+    document_malformer, username, email
 import re
 
 
@@ -34,12 +34,13 @@ def test_gauss_int():
     assert res2 == 0
 
 
-def test_user_or_email():
-    result = user_or_email("Jon")
+def test_username():
+    result = username("Jon")
     assert type(result) == str
-    res2 = user_or_email("Jon", "email")
-    assert type(res2) == str
 
+def test_email():
+    res2 = email("Jon")
+    assert type(res2) == str
 
 def test_data_gen_ipv4():
     result = data_gen("ipv4")

@@ -57,7 +57,7 @@ def test_create_schema(api_request_context: APIRequestContext):
     schema = {
         "TestUser": {
             "ID": {"type": "uuid"},
-            "Username": {"type": "name"},
+            "Username": {"type": "username"},
             "Active": {"type": "boolean"}
         }
     }

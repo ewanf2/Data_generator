@@ -77,21 +77,26 @@ def gauss_int(mu=5, sigma=1):
     return max(0, n)  # Simply clamp to 0
 
 
-def user_or_email(name, t="user"):
-    name = name.replace(" ", "").lower()
-    name = name + str(secrets.randbelow(10) + 1)
-    if t == "user":
-        return name
-    elif t == "email":
+
+def email(name="default"):
+    if name == "default":
+        return fake.email()
+    else:
         return name + "@" + secrets.choice(["outlook.com", "gmail.com", "yahoo.com"])
+def username(name="default"):
+    if name == "default":
+        return fake.username()
+    else:
+        name = name.replace(" ", "").lower()
+        name = name + str(secrets.randbelow(10) + 1)
+        return name
 
-
-# "Flyweight","Bantamweight","Featherweight","Lightweight","Welterweight","Middleweight","Light Heavyweight","Heavyweight"
 datatype_map = {
     'name': fake.name,
     'date': generate_date,
     "uuid": fake.uuid4,
-    'email': user_or_email,
+    'email': email,
+    'username': username,
     'ipv4': fake.ipv4,
     'ipv6': fake.ipv6,
     'phone number': fake.phone_number,

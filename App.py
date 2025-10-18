@@ -10,7 +10,7 @@ from werkzeug.exceptions import BadRequest
 from waitress import serve
 import json
 fake = Faker()
-from functions import data_gen, doc_generator, user_or_email, http_status, get_date, datatype_map, document_malformer
+from functions import data_gen, doc_generator, username, email, http_status, get_date, datatype_map, document_malformer
 
 App = Flask(__name__)
 CORS(App)

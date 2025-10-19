@@ -17,3 +17,13 @@ jobs:
 
       - name: Push image
         run: docker push ewanf2/flask-app:latest
+
+      - name: Calculate and post summary
+        run: |
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - ${{ steps.start_time.outputs.start }}))
+          echo "## ⏱️ Docker Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Build completed in **${DURATION}s**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🏷️ **Tags:** \`ewanf2/flask-app:latest\`" >> $GITHUB_STEP_SUMMARY

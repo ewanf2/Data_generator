@@ -128,7 +128,29 @@ datatype_map = {
     "linear": lambda x, m, c: m * x + c,
     "quadratic": lambda x, m, c: m * x ** 2 + c,
     "Sizes": lambda: random.choices(["Flyweight", "Lightweight", "Heavyweight"])[0],
-    "style small": lambda: random.choices(["boxer", "wrestler"])[0]
+    "style small": lambda: random.choices(["boxer", "wrestler"])[0],
+    'latitude': fake.latitude,
+    'longitude': fake.longitude,
+    'city': fake.city,
+    'country': fake.country,
+    'street_address': fake.street_address,
+    'postcode': fake.postcode,
+    'timezone': fake.timezone,
+    'coordinates': lambda: f"{fake.latitude()}, {fake.longitude()}",
+    'credit_card': fake.credit_card_number,
+    'credit_card_provider': fake.credit_card_provider,
+    'iban': fake.iban,
+    'currency_code': fake.currency_code,
+    'company': fake.company,
+    'job_title': fake.job,
+    'ssn': fake.ssn,  # Social Security Number
+    'ein': fake.ein,
+    'product_name': lambda: fake.catch_phrase(),
+    'price': lambda min_price=1, max_price=1000: round(random.uniform(min_price, max_price), 2),
+    'discount': lambda: random.randint(0, 50),
+    'quantity': lambda: random.randint(0, 100),
+    'sku': lambda: fake.bothify(text='??-#####'),
+    'rating': lambda: round(random.uniform(1, 5), 1)
 }
 
 

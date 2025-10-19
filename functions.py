@@ -140,7 +140,6 @@ datatype_map = {
     'credit_card': fake.credit_card_number,
     'credit_card_provider': fake.credit_card_provider,
     'iban': fake.iban,
-    'bic': fake.bic,
     'currency_code': fake.currency_code,
     'company': fake.company,
     'job_title': fake.job,

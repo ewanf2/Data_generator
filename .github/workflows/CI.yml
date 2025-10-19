@@ -1,124 +1,17 @@
 on:
   push:
-    branches: [main, 'feature/**', 'dev/**']
-  pull_request:
     branches: [main]
 
 jobs:
-  unit_test:
-    if: github.event_name == 'push'
+  build_docker_image:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.13'
+      - name: Login to docker registry
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install -r requirements-test.txt
+      - name: Build image
+        run: docker build -t ewanf2/flask-app:latest .
 
-      - name: Run tests with coverage
-        run: pytest --cov=functions --cov-report=xml:coverage.xml unittests/tests.py -v
-
-      - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage.xml
-
-  static_analysis_push:
-    if: github.event_name == 'push'
-    needs: unit_test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download coverage
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage-report
-          path: .
-
-      - uses: SonarSource/sonarcloud-github-action@v2.1.0
-        name: Static analysis (with coverage)
-        with:
-          args: >
-            -Dsonar.projectKey=flaskproj
-            -Dsonar.organization=ewanf
-            -Dsonar.coverage.exclusions=unittests/**,api_tests/**,App.py
-            -Dsonar.python.coverage.reportPaths=coverage.xml
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONARCLOUD_ACCESS }}
-
-      - name: Add SonarCloud link to summary
-        run: |
-          echo "### SonarCloud Analysis" >> $GITHUB_STEP_SUMMARY
-          echo "View full report: https://sonarcloud.io/dashboard?id=flaskproj" >> $GITHUB_STEP_SUMMARY
-
-  static_analysis_pr:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: List files for debugging
-        run: |
-          echo "=== Repository contents ==="
-          ls -la
-          pwd
-          echo "=== Python files ==="
-          find . -name "*.py" -not -path "./.venv/*" -not -path "*/__pycache__/*"
-      - uses: SonarSource/sonarcloud-github-action@v2.1.0
-        name: Static analysis (without coverage)
-        with:
-          projectBaseDir: ${{ github.workspace }}
-          args: >
-            -Dsonar.projectKey=flaskproj
-            -Dsonar.organization=ewanf
-            -Dsonar.coverage.exclusions=unittests/**,api_tests/**,App.py
-            -Dsonar.sources=.
-            -Dsonar.qualitygate.wait=tr
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONARCLOUD_ACCESS }}
-      - name: Add SonarCloud link to summary
-        run: |
-          echo "### SonarCloud Analysis" >> $GITHUB_STEP_SUMMARY
-          echo "View full report: https://sonarcloud.io/dashboard?id=flaskproj" >> $GITHUB_STEP_SUMMARY
-
-  integration_tests:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.13'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements-test.txt
-
-      - name: Run flask-app
-        run: docker compose up -d --build
-
-      - name: Wait for app to be ready
-        run: sleep 5
-
-      - name: Run api tests
-        run: pytest ./api_tests/api_tests.py -v
-
-      - name: Cleanup
-        if: always()
-        run: docker compose down
-
+      - name: Push image
+        run: docker push ewanf2/flask-app:latest

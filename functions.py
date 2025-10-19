@@ -76,8 +76,6 @@ def gauss_int(mu=5, sigma=1):
     n = round(random.gauss(mu, sigma))
     return max(0, n)  # Simply clamp to 0
 
-
-
 def email(name="default"):
     if name == "default":
         return fake.email()

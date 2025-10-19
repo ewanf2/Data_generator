@@ -27,6 +27,22 @@ jobs:
           name: coverage-report
           path: coverage.xml
 
+      - name: Post Unit Test Summary
+        if: always()
+        run: |
+          if [ "${{ steps.unit_tests.outcome }}" == "success" ]; then
+            STATUS="✅ PASSED"
+          else
+            STATUS="❌ FAILED"
+          fi
+
+          cat >> $GITHUB_STEP_SUMMARY << EOF
+          ## ⚡ Unit Tests
+
+          **Status:** $STATUS
+
+          Fast isolated tests of individual components.
+          EOF
   static_analysis:
     needs: unit_test
     runs-on: ubuntu-latest
@@ -88,3 +104,19 @@ jobs:
         if: always()
         run: docker compose down
 
+      - name: Post Integration Test Summary
+        if: always()
+        run: |
+          if [ "${{ steps.integration_tests.outcome }}" == "success" ]; then
+            STATUS="✅ PASSED"
+          else
+            STATUS="❌ FAILED"
+          fi
+          
+          cat >> $GITHUB_STEP_SUMMARY << EOF
+          ## 🔗 Integration Tests
+          
+          **Status:** $STATUS
+          
+          Tests verify end-to-end functionality and component interactions.
+          EOF

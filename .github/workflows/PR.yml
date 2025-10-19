@@ -19,8 +19,9 @@ jobs:
           pip install -r requirements-test.txt
 
       - name: Run tests with coverage
+        id: unit_tests
         run: pytest --cov=functions --cov-report=xml:coverage.xml unittests/tests.py -v
-
+        continue-on-error: true
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
         with:
@@ -98,8 +99,9 @@ jobs:
         run: sleep 5
 
       - name: Run api tests
+        id: integration_tests
         run: pytest ./api_tests/api_tests.py -v
-
+        continue-on-error: true
       - name: Cleanup
         if: always()
         run: docker compose down

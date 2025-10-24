@@ -7,7 +7,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application files
-COPY App.py functions.py ./
+COPY App.py functions.py models.py ./
 
 # Create schemas directory and initialize empty schemas file
 RUN mkdir -p /app/schemas && \

@@ -8,7 +8,7 @@ from typing import Generator
 @pytest.fixture(scope="session")
 def api_request_context(playwright: Playwright) -> Generator[APIRequestContext, None, None]:
     """Create API request context."""
-    request_context = playwright.request.new_context(base_url="http://localhost:5000")
+    request_context = playwright.request.new_context(base_url="http://localhost:5050")
     yield request_context
     request_context.dispose()
 

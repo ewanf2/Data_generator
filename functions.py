@@ -247,9 +247,7 @@ def doc_generator(schema):  # new doc_generator function, less hardcoded
 
 def malform_data(x):
     if type(x) == str:
-        malformations = [lambda s: s.replace("@", " "),
-                         lambda s: s.replace("@", ""),
-                         lambda s: s.replace(".", " "),
+        malformations = [
                          lambda s: s.replace("A", "!"),
                          lambda s: " ",
                          lambda s: s.replace(".", ""),

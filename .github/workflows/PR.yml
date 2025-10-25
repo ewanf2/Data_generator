@@ -20,8 +20,8 @@ jobs:
 
       - name: Run tests with coverage
         id: unit_tests
-        run: pytest --cov=functions --cov-report=xml:coverage.xml unittests/tests.py -v
-        continue-on-error: true
+        run: pytest --cov=functions --cov=models --cov-report=xml:coverage.xml unittests/tests.py -v
+
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
         with:
@@ -93,7 +93,7 @@ jobs:
           pip install -r requirements-test.txt
 
       - name: Run flask-app
-        run: docker compose up -d --build
+        run: docker compose -f docker-compose-test.yml up -d --build
 
       - name: Wait for app to be ready
         run: sleep 5

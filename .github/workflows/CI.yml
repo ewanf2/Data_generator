@@ -46,7 +46,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run tests with coverage
-        run: pytest --cov=. --cov-report=xml:coverage.xml unittests/ -v
+        run: pytest --cov=functions --cov=models --cov-report=xml:coverage.xml unittests/tests.py -v
       - uses: SonarSource/sonarcloud-github-action@v2.1.0
         name: Static analysis (with coverage)
         with:

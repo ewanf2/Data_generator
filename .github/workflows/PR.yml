@@ -20,7 +20,7 @@ jobs:
 
       - name: Run tests with coverage
         id: unit_tests
-        run: pytest --cov=functions --cov-report=xml:coverage.xml unittests/tests.py -v
+        run: pytest --cov=functions,models --cov-report=xml:coverage.xml unittests/tests.py -v
         continue-on-error: true
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4

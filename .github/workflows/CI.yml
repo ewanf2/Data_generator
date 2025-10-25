@@ -27,3 +27,27 @@ jobs:
           echo "✅ Build completed in **${DURATION}s**" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "🏷️ **Tags:** \`ewanf2/flask-app:latest\`" >> $GITHUB_STEP_SUMMARY
+
+  static_analysis:
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: SonarSource/sonarcloud-github-action@v2.1.0
+        name: Static analysis (with coverage)
+        with:
+          args: >
+            -Dsonar.projectKey=flaskproj
+            -Dsonar.organization=ewanf
+            -Dsonar.coverage.exclusions=unittests/**,api_tests/**,App.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONARCLOUD_ACCESS }}
+
+      - name: Add SonarCloud link to summary
+        run: |
+          echo "### SonarCloud Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "View full report: https://sonarcloud.io/dashboard?id=flaskproj" >> $GITHUB_STEP_SUMMARY

@@ -194,7 +194,7 @@ class TestDocumentMalformer:
             "Email": "john@example.com"
         }
 
-        malformed = document_malformer(document,1.0)
+        malformed = document_malformer(document,1)
 
         # At least one field should be different from original
         assert malformed != document

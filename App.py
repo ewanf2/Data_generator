@@ -71,6 +71,7 @@ def view_datatypes():
 def define_schema():
     """Expects a json with one key-value pair. The key is the schema title, the value is the schema."""
     received_json = request.get_json()
+    list_of_schema = load_schemas()
     data = (received_json)
     validated = validate_schema(data)
     key = list(received_json.keys())[0]

@@ -1,6 +1,7 @@
+#Docker compose for local building and testing
 services:
   data-gen:
-    image: ewanf2/flask-app
+    build: . #testing on local pc
     container_name: data-gen
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:5050/health" ]

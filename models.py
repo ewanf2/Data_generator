@@ -34,7 +34,7 @@ class FieldConfig(BaseModel):
     @field_validator("type")
     def validate_type(cls, v):
         if v not in datatype_map:
-            raise ValueError("Type must be one of supported datatypes")
+            raise ValueError(f"Type {v} not in supported datatypes")
         return v
 
 class Schema(RootModel[Dict[str, Dict[str, FieldConfig]]]):

@@ -1,9 +1,14 @@
 import sys
 import os
 
+import pytest
+
+from pydantic import ValidationError
+
+
 # Add the project root to the import path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
+from models import Dependencies, FieldConfig, Schema
 from functions import data_gen, doc_generator, http_status, get_date, datatype_map, \
     primary_and_dependent_fields, generate_primary_fields, generate_dependent_fields, rand_skew, gauss_int, \
     document_malformer, username, email
@@ -299,4 +304,142 @@ class TestDocumentMalformer:
         # Adjust this assertion based on your implementation
         assert max(unchanged_counts) > 0 or min(unchanged_counts) < len(document)
 
+
+class TestDependencies:
+    def test_valid_dependencies(self):
+        """Test creating valid Dependencies"""
+        deps = Dependencies(
+            reference="SourceField",
+            parameters={"param1": "value1", "param2": "value2"}
+        )
+        assert deps.reference == "SourceField"
+        assert deps.parameters == {"param1": "value1", "param2": "value2"}
+
+    def test_dependencies_without_parameters(self):
+        """Test Dependencies with no parameters (should be optional)"""
+        deps = Dependencies(reference="SourceField")
+        assert deps.reference == "SourceField"
+        assert deps.parameters is None
+
+    def test_invalid_dependencies_missing_reference(self):
+        """Test that Dependencies requires reference"""
+        with pytest.raises(ValidationError):
+            Dependencies(parameters={"param1": "value1"})
+
+
+class TestFieldConfig:
+    def test_field_config_minimal(self):
+        """Test FieldConfig with only required field"""
+        config = FieldConfig(type="name")
+        assert config.type == "name"
+        assert config.dependencies is None
+        assert config.parameters is None
+
+    def test_field_config_valid_type(self):
+        """Test all valid types from datatype_map"""
+        valid_types = ["name", "gauss int", "uuid", "email"]  # Add your actual types
+        for type_name in valid_types:
+            config = FieldConfig(type=type_name)
+            assert config.type == type_name
+
+
+class TestSchema:
+    def test_valid_schema_single_field(self):
+        """Test schema with one field"""
+        data = {
+            "Testing": {
+                "Name": {"type": "name"}
+            }
+        }
+        schema = Schema(root=data)
+        assert "Testing" in schema.root
+        assert "Name" in schema.root["Testing"]
+
+    def test_valid_schema_multiple_fields(self):
+        """Test schema with multiple fields"""
+        data = {
+            "Testing": {
+                "Name": {"type": "name"},
+                "Age": {"type": "gauss int", "parameters": {"mean": "30"}},
+                "Email": {
+                    "type": "email",
+                    "dependencies": {
+                        "reference": "Name",
+                        "parameters": {"domain": "test.com"}
+                    }
+                }
+            }
+        }
+        schema = Schema(root=data)
+        assert len(schema.root["Testing"]) == 3
+
+    def test_multiple_schemas(self):
+        """Test multiple schemas in one"""
+        data = {
+            "Schema1": {
+                "Field1": {"type": "name"}
+            },
+            "Schema2": {
+                "Field2": {"type": "gauss int"}
+            }
+        }
+        schema = Schema(root=data)
+        assert len(schema.root) == 2
+
+    def test_invalid_schema_bad_type(self):
+        """Test schema with invalid field type"""
+        data = {
+            "Testing": {
+                "Name": {"type": "invalid_type"}
+            }
+        }
+        with pytest.raises(ValidationError) as exc_info:
+            Schema(root=data)
+        assert "invalid_type" in str(exc_info.value)
+
+    def test_empty_schema(self):
+        """Test empty schema"""
+        data = {}
+        schema = Schema(root=data)
+        assert schema.root == {}
+
+
+
+class TestSchemaEdgeCases:
+    def test_nested_parameters(self):
+        """Test deeply nested parameters"""
+        data = {
+            "Testing": {
+                "Field": {
+                    "type": "gauss int",
+                    "dependencies": {
+                        "reference": "OtherField",
+                        "parameters": {
+                            "param1": "value1",
+                            "param2": "value2",
+                            "param3": "value3"
+                        }
+                    },
+                    "parameters": {
+                        "mean": "100",
+                        "std_dev": "10"
+                    }
+                }
+            }
+        }
+        schema = Schema(root=data)
+        field = schema.root["Testing"]["Field"]
+        assert field.dependencies.parameters["param1"] == "value1"
+        assert field.parameters["mean"] == "100"
+
+    def test_special_characters_in_field_names(self):
+        """Test field names with special characters"""
+        data = {
+            "Testing": {
+                "Field_Name_123": {"type": "name"},
+                "Field-Name": {"type": "name"}
+            }
+        }
+        schema = Schema(root=data)
+        assert "Field_Name_123" in schema.root["Testing"]
 

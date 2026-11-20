@@ -58,7 +58,7 @@ jobs:
           name: coverage-report
           path: .
 
-      - uses: SonarSource/sonarcloud-github-action@v2.1.0
+      - uses: SonarSource/sonarqube-scan-action@v8.5.0
         name: Static analysis (with coverage)
         with:
           args: >

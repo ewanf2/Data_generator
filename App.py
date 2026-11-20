@@ -13,6 +13,7 @@ import json
 fake = Faker()
 from functions import data_gen, doc_generator, username, email, http_status, get_date, datatype_map, document_malformer
 from models import Schema, validate_schema
+from storage import init_db, get_all_schemas, get_schema, add_schema, delete_schema as remove_schema, db_healthy
 
 App = Flask(__name__)
 CORS(App)
@@ -29,36 +30,12 @@ list_of_schema = {
 
 }
 
-schemas_path = "./schemas/schemas.json"
-
-
-def save_schemas(schema):
-    with open(schemas_path, "r") as f:
-        data = json.load(f)
-    data.update(schema)
-    with open(schemas_path, "w") as f:
-        json.dump(data, f)
-    print("Schemas saved to " + schemas_path)
-
-
-def load_schemas():
-    with open(schemas_path, "r") as f:
-        x = json.load(f)
-    return x
-
-
-# list_of_schema = load_schemas()
-
-
-with App.app_context():
-    schemas = load_schemas()
-    if not schemas:  # Only save if file is empty/missing
-        save_schemas(list_of_schema)
+# Create the schemas table and add the starter schemas if they aren't there yet
+init_db(list_of_schema)
 
 
 @App.route("/")
 def index():
-    save_schemas({})
     return "Flask app is running!"
 
 
@@ -71,46 +48,35 @@ def view_datatypes():
 def define_schema():
     """Expects a json with one key-value pair. The key is the schema title, the value is the schema."""
     received_json = request.get_json()
-    list_of_schema = load_schemas()
-    data = (received_json)
-    validated = validate_schema(data)
+    validated = validate_schema(received_json)
+    if validated is not True:
+        return f"{validated}", 400
+
     key = list(received_json.keys())[0]
-    if validated ==True and key in list_of_schema:
+    if not add_schema(key, received_json[key]):
         return jsonify({
             "error": f"The schema \"{key}\" is already defined.",
         }), 400
-    elif validated == True and key not in list_of_schema:
-
-        list_of_schema.update(received_json)
-        save_schemas(list_of_schema)
-        return f"The following schema has been defined : {key}", 201
-    elif validated != True and key in list_of_schema:
-        return validated, 400
-    else:
-        return f"{validated}", 400
+    return f"The following schema has been defined : {key}", 201
 
 
 @App.delete("/Schemas/<schema_title>")
 def delete_schema(schema_title):
-    list_of_schema = load_schemas()
-    if schema_title not in list_of_schema:
+    if not remove_schema(schema_title):
         return "Schema not in existing list of schemas, unable to delete.", 400
-    else:
-        del list_of_schema[schema_title]
-        with open(schemas_path, "w") as f:
-            json.dump(list_of_schema, f)
-        return f"Schema: {schema_title}  deleted.", 200
+    return f"Schema: {schema_title}  deleted.", 200
 
 
 # test
 @App.get("/Schemas/<schema_title>")
 @App.get("/Schemas")
 def view(schema_title=None):
-    list_of_schema = load_schemas()
-    if schema_title != None:
-        return list_of_schema[schema_title]
-    else:
-        return list_of_schema
+    if schema_title is None:
+        return get_all_schemas()
+    schema = get_schema(schema_title)
+    if schema is None:
+        return f"The schema {schema_title} has not been defined.", 404
+    return schema
 
 
 # t
@@ -119,8 +85,8 @@ def Document_generator(schema_title):
     no_of_docs = request.args.get("no", 1)
     mal = request.args.get("malf", "False")
     filetype = request.headers.get('Accept', 'application/json')
-    list_of_schema = load_schemas()
-    if schema_title not in list_of_schema.keys():
+    schema = get_schema(schema_title)
+    if schema is None:
         return (
             f"This schema {schema_title} has not been defined. Either define this schema or try again with an existing one",
             404)
@@ -132,7 +98,6 @@ def Document_generator(schema_title):
     except:
         return "You have to enter a valid number of documents, it should be a positive integer", 400
 
-    schema = list_of_schema[schema_title]
     if filetype == "application/ndjson":
         if mal == "True":  # producing malformed data
             docs = [json.dumps(document_malformer(doc_generator(schema))) for i in range(no_of_docs)]
@@ -158,14 +123,9 @@ def Document_generator(schema_title):
 @App.route("/health")
 def health_check():
     """Health check endpoint for Docker/orchestration."""
-    try:
-        # Check if schemas file is accessible
-        with open(schemas_path, "r") as f:
-            json.load(f)
-
+    if db_healthy():
         return {"status": "healthy"}, 200
-    except Exception as e:
-        return {"status": "unhealthy"}, 503
+    return {"status": "unhealthy"}, 503
 
 
 if __name__ == "__main__":
